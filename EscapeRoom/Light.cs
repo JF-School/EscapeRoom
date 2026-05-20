@@ -44,7 +44,7 @@ namespace EscapeRoom
             {
                 if (_rect.Contains(mouseState.Position))
                 {
-                    _enabled = !_enabled;
+                    Toggle();
                     return true;
                 }
             }
@@ -53,6 +53,12 @@ namespace EscapeRoom
         public void Toggle()
         {
             _enabled = !_enabled;
+        }
+
+        public bool Enabled
+        {
+            get { return _enabled; }
+            set { _enabled = value; }
         }
 
         public void Draw(SpriteBatch spriteBatch)

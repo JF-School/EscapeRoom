@@ -15,9 +15,10 @@ namespace EscapeRoom
         private Texture2D _texture;
         private Color _onColor;
         private Point _location;
+        private int _puzzle;
         
 
-        public LightGrid(Texture2D texture, Point location, Color color)
+        public LightGrid(Texture2D texture, Point location, Color color, int puzzle)
         {
             _location = location;
             _onColor = color;
@@ -27,7 +28,12 @@ namespace EscapeRoom
                 for (int x = 0; x < 5; x++)
                 {
                     _lightBoard[x, y] = new Light(_texture, new Rectangle(x * 60 + _location.X, y * 60 + _location.Y, 50, 50), _onColor);
+                    
                 }
+            _puzzle = puzzle;
+            if (puzzle == 1)
+                SetPuzzle1();
+
 
         }
 
@@ -59,5 +65,44 @@ namespace EscapeRoom
                 for (int x = 0; x < 5; x++)
                     _lightBoard[x, y].Draw(spriteBatch);
         }
+
+        public void SetPuzzle1()
+        {
+            ClearPuzzle();
+            _lightBoard[0, 0].Toggle();
+            _lightBoard[0, 2].Toggle();
+            _lightBoard[0, 4].Toggle();
+            _lightBoard[1, 2].Toggle();
+            _lightBoard[2, 0].Toggle();
+            _lightBoard[2, 4].Toggle();
+            _lightBoard[3, 2].Toggle();
+            _lightBoard[4, 0].Toggle();
+            _lightBoard[4, 2].Toggle();
+            _lightBoard[4, 4].Toggle();
+
+
+
+
+        }
+
+        public void ClearPuzzle()
+        {
+            for (int y = 0; y < 5; y++)
+                for (int x = 0; x < 5; x++)
+                    _lightBoard[x, y].Enabled = false;
+                    
+        }
+
+        public int Puzzle
+        {
+            get { return _puzzle; }
+            set 
+            { 
+                _puzzle = value;
+                if (_puzzle == 1)
+                    SetPuzzle1();
+            }
+        }
+
     }
 }

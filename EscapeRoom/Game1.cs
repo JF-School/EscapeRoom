@@ -13,11 +13,18 @@ namespace EscapeRoom
         Outro
     }
 
+    public enum CellState
+    {
+        Unchecked,
+        Empty,
+        Filled
+    }
+
     public class Game1 : Game
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        Rectangle window; // window
+        Rectangle window; // window     
 
         Screen screen;
 
@@ -43,6 +50,7 @@ namespace EscapeRoom
 
         protected override void Initialize()
         {
+
             window = new Rectangle(0, 0, 800, 500);
             _graphics.PreferredBackBufferHeight = window.Height;
             _graphics.PreferredBackBufferWidth = window.Width;
@@ -50,32 +58,16 @@ namespace EscapeRoom
 
             screen = Screen.ClassicPuzzles;
             puzzle = 0; // zero puzzle = original window
-            // For Screen.ClassicPuzzles:
-            // puzzle 1 = Lights Out
-            // puzzle 2 = 15 sliding
-            // puzzle 3 = Nonogram
-            // puzzle 4 = N/A
-            // puzzle 5 = N/A
 
-            // For Screen.CipherPuzzles:
-            // puzzle 1 = Caesar Cipher
-            // puzzle 2 = Morse Code
-            // puzzle 3 = N/A
-            // puzzle 4 = N/A
-            // puzzle 5 = N/A
-
-            // For Screen.FunPuzzles:
-            // puzzle 1 = Linglox
-            // puzzle 2 = N/A
-            // puzzle 3 = N/A
-            // puzzle 4 = N/A
-            // puzzle 5 = N/A
+            lightsBtn = new Rectangle(450, 0, 100, 100);
+            nonogramBtn = new Rectangle(25, 215, 100, 100);
+            fifteenBtn = new Rectangle(610, 240, 100, 100);
 
             // TODO: Add your initialization logic here
 
             base.Initialize();
 
-            lightGrid = new LightGrid(rectTexture, new Point(230, 75), Color.Gold);
+            lightGrid = new LightGrid(rectTexture, new Point(230, 75), Color.Gold, 1);
         }
 
         protected override void LoadContent()
@@ -86,6 +78,9 @@ namespace EscapeRoom
 
             rectTexture = Content.Load<Texture2D>("Images/rectangle");
             phTexture = Content.Load<Texture2D>("Placeholders/escaperoomplaceholder");
+            lightsPhTexture = Content.Load<Texture2D>("Placeholders/lightsoutbutton");
+            nonogramPhTexture = Content.Load<Texture2D>("Placeholders/nonogrambutton");
+            fifteenPhTexture = Content.Load<Texture2D>("Placeholders/fifteenslidingpuzzle");
         }
 
         protected override void Update(GameTime gameTime)
@@ -99,21 +94,7 @@ namespace EscapeRoom
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
-            switch (screen) // buttons
-            {
-                case Screen.Intro:
-                    break;
-                case Screen.ClassicPuzzles:
-                    break;
-                case Screen.CipherPuzzles:
-                    break;
-                case Screen.FunPuzzles:
-                    break;
-                case Screen.Outro:
-                    break;
-            }
-
-            switch (screen) // puzzles
+            switch (screen) 
             {
                 case Screen.Intro:
                     break;
@@ -121,6 +102,15 @@ namespace EscapeRoom
                     switch (puzzle)
                     {
                         case 0: // normal screen
+                            if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                            {
+                                if (lightsBtn.Contains(mouseState.Position))
+                                    puzzle = 1;
+                                if (nonogramBtn.Contains(mouseState.Position))
+                                    puzzle = 2;
+                                if (fifteenBtn.Contains(mouseState.Position))
+                                    puzzle = 3;
+                            }
                             break;
                         case 1: // lights out
                             lightGrid.Update(mouseState, prevMouseState);
@@ -175,10 +165,7 @@ namespace EscapeRoom
 
             // TODO: Add your update logic here
 
-            base.Update(gameTime);
-
-            // puzzles
-            
+            base.Update(gameTime);            
         }
 
         protected override void Draw(GameTime gameTime)
@@ -198,6 +185,9 @@ namespace EscapeRoom
                     {
                         case 0: // normal screen
                             _spriteBatch.Draw(phTexture, window, Color.White);
+                            _spriteBatch.Draw(lightsPhTexture, lightsBtn, Color.White);
+                            _spriteBatch.Draw(nonogramPhTexture, nonogramBtn, Color.White);
+                            _spriteBatch.Draw(fifteenPhTexture, fifteenBtn, Color.White);
                             break;
                         case 1: // lights out
                             _spriteBatch.Draw(rectTexture, window, Color.Black);
