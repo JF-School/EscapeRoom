@@ -42,11 +42,40 @@ namespace EscapeRoom
 
         public void Update(MouseState mouseState, MouseState prevMouseState)
         {
-
+            if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released
+                && (_cellState == CellState.Unchecked || _cellState == CellState.Empty))
+                if (_rect.Contains(mouseState.Position))
+                {
+                    _cellState = CellState.Filled;
+                }
+            if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released 
+                && (_cellState == CellState.Filled || _cellState == CellState.Empty))
+                if (_rect.Contains(mouseState.Position))
+                {
+                    _cellState = CellState.Unchecked;
+                }
+            if (mouseState.RightButton == ButtonState.Pressed && prevMouseState.RightButton == ButtonState.Released
+                && (_cellState == CellState.Unchecked || _cellState == CellState.Filled))
+                if (_rect.Contains(mouseState.Position))
+                {
+                    _cellState = CellState.Empty;
+                }
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
+            switch (_cellState)
+            {
+                case CellState.Unchecked:
+                    spriteBatch.Draw(_normalTexture, _rect, Color.White);
+                    break;
+                case CellState.Empty:
+                    spriteBatch.Draw(_crossTexture, _rect, Color.White);
+                    break;
+                case CellState.Filled:
+                    spriteBatch.Draw(_normalTexture, _rect, Color.Black);
+                    break;
+            }
             //if (_leftClicked)
             //    spriteBatch.Draw(_normalTexture, _rect, Color.Black);
             //else

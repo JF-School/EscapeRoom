@@ -31,8 +31,18 @@ namespace EscapeRoom
                     
                 }
             _puzzle = puzzle;
-            if (puzzle == 1)
-                SetPuzzle1();
+            switch (puzzle)
+            {
+                case 1:
+                    SetPuzzle1();
+                    break;
+                case 2:
+                    SetPuzzle2();
+                    break;
+                case 3:
+                    SetPuzzle3();
+                    break;
+            }
 
 
         }
@@ -66,23 +76,65 @@ namespace EscapeRoom
                     _lightBoard[x, y].Draw(spriteBatch);
         }
 
-        public void SetPuzzle1()
+        public void SetPuzzle1() // #
+        {
+            ClearPuzzle();
+            _lightBoard[0, 1].Toggle();
+            _lightBoard[0, 3].Toggle();
+            _lightBoard[1, 0].Toggle();
+            _lightBoard[1, 1].Toggle();
+            _lightBoard[1, 2].Toggle();
+            _lightBoard[1, 3].Toggle();
+            _lightBoard[1, 4].Toggle();
+            _lightBoard[2, 1].Toggle();
+            _lightBoard[2, 3].Toggle();
+            _lightBoard[3, 0].Toggle();
+            _lightBoard[3, 1].Toggle();
+            _lightBoard[3, 2].Toggle();
+            _lightBoard[3, 3].Toggle();
+            _lightBoard[3, 4].Toggle();
+            _lightBoard[4, 1].Toggle();
+            _lightBoard[4, 3].Toggle();
+        }
+
+        public void SetPuzzle2() // A
+        {
+            ClearPuzzle();
+            _lightBoard[0, 1].Toggle();
+            _lightBoard[0, 2].Toggle();
+            _lightBoard[0, 3].Toggle();
+            _lightBoard[0, 4].Toggle();
+            _lightBoard[1, 0].Toggle();
+            _lightBoard[1, 1].Toggle();
+            _lightBoard[1, 3].Toggle();
+            _lightBoard[2, 0].Toggle();
+            _lightBoard[2, 3].Toggle();
+            _lightBoard[3, 0].Toggle();
+            _lightBoard[3, 1].Toggle();
+            _lightBoard[3, 3].Toggle();
+            _lightBoard[4, 1].Toggle();
+            _lightBoard[4, 2].Toggle();
+            _lightBoard[4, 3].Toggle();
+            _lightBoard[4, 4].Toggle();
+        }
+
+        public void SetPuzzle3() // IV
         {
             ClearPuzzle();
             _lightBoard[0, 0].Toggle();
+            _lightBoard[0, 1].Toggle();
             _lightBoard[0, 2].Toggle();
+            _lightBoard[0, 3].Toggle();
             _lightBoard[0, 4].Toggle();
-            _lightBoard[1, 2].Toggle();
             _lightBoard[2, 0].Toggle();
-            _lightBoard[2, 4].Toggle();
-            _lightBoard[3, 2].Toggle();
+            _lightBoard[2, 1].Toggle();
+            _lightBoard[2, 2].Toggle();
+            _lightBoard[2, 3].Toggle();
+            _lightBoard[3, 4].Toggle();
             _lightBoard[4, 0].Toggle();
+            _lightBoard[4, 1].Toggle();
             _lightBoard[4, 2].Toggle();
-            _lightBoard[4, 4].Toggle();
-
-
-
-
+            _lightBoard[4, 3].Toggle();
         }
 
         public void ClearPuzzle()

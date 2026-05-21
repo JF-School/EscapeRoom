@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System;
 
 namespace EscapeRoom
 {
@@ -38,7 +39,7 @@ namespace EscapeRoom
         KeyboardState keyboardState, prevKeyboardState;
 
 
-
+        Random generator;
         int puzzle; // puzzles
 
         public Game1()
@@ -58,6 +59,7 @@ namespace EscapeRoom
 
             screen = Screen.ClassicPuzzles;
             puzzle = 0; // zero puzzle = original window
+            generator = new Random();
 
             lightsBtn = new Rectangle(450, 0, 100, 100);
             nonogramBtn = new Rectangle(25, 215, 100, 100);
@@ -67,7 +69,7 @@ namespace EscapeRoom
 
             base.Initialize();
 
-            lightGrid = new LightGrid(rectTexture, new Point(230, 75), Color.Gold, 1);
+            lightGrid = new LightGrid(rectTexture, new Point(230, 75), Color.Gold, generator.Next(1, 4));
         }
 
         protected override void LoadContent()
