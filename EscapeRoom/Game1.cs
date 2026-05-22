@@ -17,7 +17,7 @@ namespace EscapeRoom
     public enum CellState
     {
         Unchecked,
-        Empty,
+        CrossedOut,
         Filled
     }
 
@@ -29,12 +29,13 @@ namespace EscapeRoom
 
         Screen screen;
 
-        Texture2D rectTexture;
+        Texture2D rectTexture, xTexture;
         Texture2D phTexture; // placeholder texture, remove after textures are finalized.
         Texture2D lightsPhTexture, nonogramPhTexture, fifteenPhTexture; // placeholder texture
         Rectangle lightsBtn, nonogramBtn, fifteenBtn;
 
         LightGrid lightGrid;
+        CellGrid cellGrid;
         MouseState mouseState, prevMouseState;
         KeyboardState keyboardState, prevKeyboardState;
 
@@ -70,6 +71,7 @@ namespace EscapeRoom
             base.Initialize();
 
             lightGrid = new LightGrid(rectTexture, new Point(230, 75), Color.Gold, generator.Next(1, 4));
+            cellGrid = new CellGrid(xTexture, rectTexture, new Point(230, 75), Color.White);
         }
 
         protected override void LoadContent()
@@ -79,6 +81,7 @@ namespace EscapeRoom
             // TODO: use this.Content to load your game content here
 
             rectTexture = Content.Load<Texture2D>("Images/rectangle");
+            xTexture = Content.Load<Texture2D>("Images/Red_X");
             phTexture = Content.Load<Texture2D>("Placeholders/escaperoomplaceholder");
             lightsPhTexture = Content.Load<Texture2D>("Placeholders/lightsoutbutton");
             nonogramPhTexture = Content.Load<Texture2D>("Placeholders/nonogrambutton");
@@ -118,6 +121,7 @@ namespace EscapeRoom
                             lightGrid.Update(mouseState, prevMouseState);
                             break;
                         case 2: // nonogram
+                            cellGrid.Update(mouseState, prevMouseState);
                             break;
                         case 3: // 15 sliding puzzle
                             break;
@@ -196,6 +200,8 @@ namespace EscapeRoom
                             lightGrid.Draw(_spriteBatch);
                             break;
                         case 2: // nonogram
+                            _spriteBatch.Draw(rectTexture, window, Color.Gray);
+                            cellGrid.Draw(_spriteBatch);
                             break;
                         case 3: // 15 sliding puzzle
                             break;

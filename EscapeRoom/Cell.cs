@@ -16,6 +16,7 @@ namespace EscapeRoom
         private Color _color;
         //private bool _leftClicked, _rightClicked;
         CellState _cellState;
+        private bool _filled, _crossed;
 
         public Cell(Texture2D crossTexture, Texture2D normalTexture, Rectangle rect, Color color)
         {
@@ -23,8 +24,8 @@ namespace EscapeRoom
             _normalTexture = normalTexture;
             _rect = rect;
             _color = color;
-            //_leftClicked = false;
-            //_rightClicked = false;
+            _filled = false;
+            _crossed = false;
             _cellState = CellState.Unchecked;
         }
 
@@ -40,42 +41,62 @@ namespace EscapeRoom
             set { _cellState = value; }
         }
 
-        public void Update(MouseState mouseState, MouseState prevMouseState)
+        public bool Update(MouseState mouseState, MouseState prevMouseState)
         {
-            if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released
-                && (_cellState == CellState.Unchecked || _cellState == CellState.Empty))
+            if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+            {
                 if (_rect.Contains(mouseState.Position))
                 {
-                    _cellState = CellState.Filled;
+                    FillToggle();
+                    return true;
                 }
-            if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released 
-                && (_cellState == CellState.Filled || _cellState == CellState.Empty))
-                if (_rect.Contains(mouseState.Position))
-                {
-                    _cellState = CellState.Unchecked;
-                }
-            if (mouseState.RightButton == ButtonState.Pressed && prevMouseState.RightButton == ButtonState.Released
-                && (_cellState == CellState.Unchecked || _cellState == CellState.Filled))
-                if (_rect.Contains(mouseState.Position))
-                {
-                    _cellState = CellState.Empty;
-                }
+            }
+            return false;
+        }
+
+        public bool Filled
+        {
+            get { return _filled; }
+            set { _filled = value; }
+        }
+
+        public void FillToggle()
+        {
+            _filled = !_filled;
+        }
+
+        public bool Crossed
+        {
+            get { return _crossed; }
+            set { _crossed = value; }
+        }
+
+        public void CrossToggle()
+        {
+            _crossed = !_crossed;
         }
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            switch (_cellState)
-            {
-                case CellState.Unchecked:
-                    spriteBatch.Draw(_normalTexture, _rect, Color.White);
-                    break;
-                case CellState.Empty:
-                    spriteBatch.Draw(_crossTexture, _rect, Color.White);
-                    break;
-                case CellState.Filled:
-                    spriteBatch.Draw(_normalTexture, _rect, Color.Black);
-                    break;
-            }
+            //switch (_cellState)
+            //{
+            //    case CellState.Unchecked:
+            //        spriteBatch.Draw(_normalTexture, _rect, Color.White);
+            //        break;
+            //    case CellState.CrossedOut:
+            //        spriteBatch.Draw(_normalTexture, _rect, Color.White);
+            //        spriteBatch.Draw(_crossTexture, _rect, Color.White);
+            //        break;
+            //    case CellState.Filled:
+            //        spriteBatch.Draw(_normalTexture, _rect, Color.Black);
+            //        break;
+            //}
+
+            if (_filled)
+                spriteBatch.Draw(_normalTexture, _rect, Color.Black);
+            else
+                spriteBatch.Draw(_normalTexture, _rect, Color.White);
+
             //if (_leftClicked)
             //    spriteBatch.Draw(_normalTexture, _rect, Color.Black);
             //else
