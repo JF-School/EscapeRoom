@@ -26,13 +26,19 @@ namespace EscapeRoom
             _color = color;
             _filled = false;
             _crossed = false;
-            _cellState = CellState.Unchecked;
+            _cellState = CellState.Empty;
         }
 
         public Color Color
         {
             get { return _color; }
             set { _color = value; }
+        }
+
+        public Rectangle Rect
+        {
+            get { return _rect; }
+            set { _rect = value; }
         }
 
         public CellState State
@@ -44,13 +50,17 @@ namespace EscapeRoom
         public bool Update(MouseState mouseState, MouseState prevMouseState)
         {
             if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
-            {
                 if (_rect.Contains(mouseState.Position))
                 {
                     FillToggle();
                     return true;
                 }
-            }
+            if (mouseState.RightButton == ButtonState.Pressed && prevMouseState.RightButton == ButtonState.Released)
+                if (_rect.Contains(mouseState.Position))
+                {
+                    CrossToggle();
+                    return true;
+                }
             return false;
         }
 
@@ -62,7 +72,16 @@ namespace EscapeRoom
 
         public void FillToggle()
         {
-            _filled = !_filled;
+            if (_cellState == CellState.Empty)
+                _cellState = CellState.Filled;
+            else if (_cellState == CellState.Filled)
+                _cellState = CellState.Empty;
+        }
+
+        public void CrossToggle()
+        {
+            if (_cellState == CellState.Empty || _cellState == CellState.Filled)
+                _cellState = CellState.Crossed;
         }
 
         public bool Crossed
@@ -71,31 +90,21 @@ namespace EscapeRoom
             set { _crossed = value; }
         }
 
-        public void CrossToggle()
-        {
-            _crossed = !_crossed;
-        }
-
         public void Draw(SpriteBatch spriteBatch)
         {
-            //switch (_cellState)
-            //{
-            //    case CellState.Unchecked:
-            //        spriteBatch.Draw(_normalTexture, _rect, Color.White);
-            //        break;
-            //    case CellState.CrossedOut:
-            //        spriteBatch.Draw(_normalTexture, _rect, Color.White);
-            //        spriteBatch.Draw(_crossTexture, _rect, Color.White);
-            //        break;
-            //    case CellState.Filled:
-            //        spriteBatch.Draw(_normalTexture, _rect, Color.Black);
-            //        break;
-            //}
-
-            if (_filled)
-                spriteBatch.Draw(_normalTexture, _rect, Color.Black);
-            else
-                spriteBatch.Draw(_normalTexture, _rect, Color.White);
+            switch (_cellState)
+            {
+                case CellState.Empty:
+                    spriteBatch.Draw(_normalTexture, _rect, _color);
+                    break;
+                case CellState.Crossed:
+                    spriteBatch.Draw(_normalTexture, _rect, _color);
+                    spriteBatch.Draw(_crossTexture, _rect, Color.White);
+                    break;
+                case CellState.Filled:
+                    spriteBatch.Draw(_normalTexture, _rect, Color.Black);
+                    break;
+            }
 
             //if (_leftClicked)
             //    spriteBatch.Draw(_normalTexture, _rect, Color.Black);

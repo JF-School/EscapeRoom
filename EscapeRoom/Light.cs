@@ -40,7 +40,7 @@ namespace EscapeRoom
 
         public bool Update(MouseState mouseState, MouseState prevMouseState)
         {
-            if(mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+            if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
             {
                 if (_rect.Contains(mouseState.Position))
                 {

@@ -65,7 +65,6 @@ namespace EscapeRoom
                         if (y + 1 < 5)
                             _lightBoard[x, y + 1].Toggle();
                     }
-
                 }
         }
 

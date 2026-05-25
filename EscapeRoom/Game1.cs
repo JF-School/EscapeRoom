@@ -16,9 +16,9 @@ namespace EscapeRoom
 
     public enum CellState
     {
-        Unchecked,
-        CrossedOut,
-        Filled
+        Empty,
+        Filled,
+        Crossed
     }
 
     public class Game1 : Game
