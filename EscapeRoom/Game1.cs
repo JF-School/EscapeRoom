@@ -71,7 +71,7 @@ namespace EscapeRoom
             base.Initialize();
 
             lightGrid = new LightGrid(rectTexture, new Point(230, 75), Color.Gold, generator.Next(1, 4));
-            cellGrid = new CellGrid(xTexture, rectTexture, new Point(230, 75), Color.White);
+            cellGrid = new CellGrid(rectTexture, xTexture, new Point(230, 75), Color.White);
         }
 
         protected override void LoadContent()
@@ -125,10 +125,6 @@ namespace EscapeRoom
                             break;
                         case 3: // 15 sliding puzzle
                             break;
-                        case 4: // idk
-                            break;
-                        case 5: // idk
-                            break;
                     }
                     break;
                 case Screen.CipherPuzzles:
@@ -142,10 +138,6 @@ namespace EscapeRoom
                             break;
                         case 3: // idk
                             break;
-                        case 4: // idk
-                            break;
-                        case 5: // idk
-                            break;
                     }
                     break;
                 case Screen.FunPuzzles:
@@ -158,10 +150,6 @@ namespace EscapeRoom
                         case 2: // idk
                             break;
                         case 3: // idk
-                            break;
-                        case 4: // idk
-                            break;
-                        case 5: // idk
                             break;
                     }
                     break;

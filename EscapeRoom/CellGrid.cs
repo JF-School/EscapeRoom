@@ -38,8 +38,8 @@ namespace EscapeRoom
 
         public void Update(MouseState mouseState, MouseState prevMouseState)
         {
-            for (int y = 0; y > 5; y++)
-                for (int x = 0; x > 5; x++)
+            for (int y = 0; y < 5; y++)
+                for (int x = 0; x < 5; x++)
                 {
                     _cellBoard[x, y].Update(mouseState, prevMouseState);
                 }
