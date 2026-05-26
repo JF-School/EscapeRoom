@@ -147,9 +147,9 @@ namespace EscapeRoom
                             break;
                         case 1: // linglox
                             break;
-                        case 2: // idk
+                        case 2: // the square hole
                             break;
-                        case 3: // idk
+                        case 3: // calculator
                             break;
                     }
                     break;
@@ -193,16 +193,13 @@ namespace EscapeRoom
                             break;
                         case 3: // 15 sliding puzzle
                             break;
-                        case 4: // idk
-                            break;
-                        case 5: // idk
-                            break;
                     }
                     break;
                 case Screen.CipherPuzzles:
                     switch (puzzle)
                     {
                         case 0: // normal screen
+                            _spriteBatch.Draw(phTexture, window, Color.White);
                             break;
                         case 1: // caesar cipher
                             break;
@@ -210,26 +207,19 @@ namespace EscapeRoom
                             break;
                         case 3: // idk
                             break;
-                        case 4: // idk
-                            break;
-                        case 5: // idk
-                            break;
                     }
                     break;
                 case Screen.FunPuzzles:
                     switch (puzzle)
                     {
                         case 0: // normal screen
+                            _spriteBatch.Draw(phTexture, window, Color.White);
                             break;
                         case 1: // linglox
                             break;
-                        case 2: // idk
+                        case 2: // the square hole
                             break;
-                        case 3: // idk
-                            break;
-                        case 4: // idk
-                            break;
-                        case 5: // idk
+                        case 3: // calculator
                             break;
                     }
                     break;

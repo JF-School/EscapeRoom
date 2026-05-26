@@ -28,18 +28,18 @@ namespace EscapeRoom
             _defaultTexture = defaultTexture;
             _location = location;
             _color = color;
-            _cellBoard = new Cell[5, 5];
-            for (int y = 0; y < 5; y++)
-                for (int x = 0; x < 5; x++)
+            _cellBoard = new Cell[10, 10];
+            for (int y = 0; y < 10; y++)
+                for (int x = 0; x < 10; x++)
                 {
-                    _cellBoard[x, y] = new Cell(_crossTexture, _defaultTexture, new Rectangle(x * 60 + _location.X, y * 60 + _location.Y, 50, 50), _color);
+                    _cellBoard[x, y] = new Cell(_crossTexture, _defaultTexture, new Rectangle(x * 30 + _location.X, y * 30 + _location.Y, 25, 25), _color);
                 }
         }
 
         public void Update(MouseState mouseState, MouseState prevMouseState)
         {
-            for (int y = 0; y < 5; y++)
-                for (int x = 0; x < 5; x++)
+            for (int y = 0; y < 10; y++)
+                for (int x = 0; x < 10; x++)
                 {
                     _cellBoard[x, y].Update(mouseState, prevMouseState);
                 }
@@ -47,8 +47,8 @@ namespace EscapeRoom
 
         public void Draw(SpriteBatch spriteBatch)
         {
-            for (int y = 0; y < 5; y++)
-                for (int x = 0; x < 5; x++)
+            for (int y = 0; y < 10; y++)
+                for (int x = 0; x < 10; x++)
                     _cellBoard[x, y].Draw(spriteBatch);
         }
 
