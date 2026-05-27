@@ -13,7 +13,7 @@ namespace EscapeRoom
     {
         private Cell[,] _cellBoard;
 
-        private Cell[,] _solutionBoard;
+        private int[,] _solutionBoard;
         private Texture2D _crossTexture;
         private Texture2D _defaultTexture;
         private Color _color;
@@ -29,6 +29,8 @@ namespace EscapeRoom
             _location = location;
             _color = color;
             _cellBoard = new Cell[10, 10];
+        
+
             for (int y = 0; y < 10; y++)
                 for (int x = 0; x < 10; x++)
                 {
@@ -43,8 +45,14 @@ namespace EscapeRoom
                 {
                     _cellBoard[x, y].Update(mouseState, prevMouseState);
                 }
+            // Check for a win
+
         }
 
+        public int[,] Solution
+        {
+            set { _solutionBoard = value; }
+        }
         public void Draw(SpriteBatch spriteBatch)
         {
             for (int y = 0; y < 10; y++)

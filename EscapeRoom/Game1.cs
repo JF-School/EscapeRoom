@@ -72,6 +72,7 @@ namespace EscapeRoom
 
             lightGrid = new LightGrid(rectTexture, new Point(230, 75), Color.Gold, generator.Next(1, 4));
             cellGrid = new CellGrid(rectTexture, xTexture, new Point(230, 75), Color.White);
+            cellGrid.Solution = 
         }
 
         protected override void LoadContent()
