@@ -39,6 +39,8 @@ namespace EscapeRoom
         MouseState mouseState, prevMouseState;
         KeyboardState keyboardState, prevKeyboardState;
 
+        int[,] solution1;
+
 
         Random generator;
         int puzzle; // puzzles
@@ -72,8 +74,13 @@ namespace EscapeRoom
 
             lightGrid = new LightGrid(rectTexture, new Point(230, 75), Color.Gold, generator.Next(1, 4));
             cellGrid = new CellGrid(rectTexture, xTexture, new Point(230, 75), Color.White);
-            cellGrid.Solution = 
+            solution1 = new int[10, 10];
+            NonogramSolution1();
+            cellGrid.Solution = solution1;
+
         }
+
+        
 
         protected override void LoadContent()
         {
@@ -122,7 +129,8 @@ namespace EscapeRoom
                             lightGrid.Update(mouseState, prevMouseState);
                             break;
                         case 2: // nonogram
-                            cellGrid.Update(mouseState, prevMouseState);
+                            if (cellGrid.Update(mouseState, prevMouseState))
+                                puzzle = 0;
                             break;
                         case 3: // 15 sliding puzzle
                             break;
@@ -233,5 +241,66 @@ namespace EscapeRoom
 
             base.Draw(gameTime);
         }
+
+        public void NonogramSolution1()
+        {
+            for (int y = 0; y < 10; y++)
+                for (int x = 0; x < 10; x++)
+                {
+                    solution1[x, y] = 0;
+                }
+            // [row, column] (STARTS AT 0)
+            solution1[0, 0] = 1;
+            solution1[0, 1] = 1;
+            solution1[0, 2] = 1;
+            solution1[0, 3] = 1;
+            solution1[0, 5] = 1;
+            solution1[0, 6] = 1;
+            solution1[0, 7] = 1;
+            solution1[0, 9] = 1;
+            solution1[1, 0] = 1;
+            solution1[1, 1] = 1;
+            solution1[1, 2] = 1;
+            solution1[1, 3] = 1;
+            solution1[1, 4] = 1;
+            solution1[1, 5] = 1;
+            solution1[1, 6] = 1;
+            solution1[1, 7] = 1;
+            solution1[1, 9] = 1;
+            solution1[2, 0] = 1;
+            solution1[2, 1] = 1;
+            solution1[2, 2] = 1;
+            solution1[2, 5] = 1;
+            solution1[2, 6] = 1;
+            solution1[2, 7] = 1;
+            solution1[2, 9] = 1;
+            solution1[3, 0] = 1;
+            solution1[3, 1] = 1;
+            solution1[3, 9] = 1;
+            solution1[4, 0] = 1;
+            solution1[4, 9] = 1;
+            solution1[5, 4] = 1;
+            solution1[5, 6] = 1;
+            solution1[5, 8] = 1;
+            solution1[5, 9] = 1;
+            solution1[6, 2] = 1;
+            solution1[6, 4] = 1;
+            solution1[6, 6] = 1;
+            solution1[6, 7] = 1;
+            solution1[6, 8] = 1;
+            solution1[6, 9] = 1;
+            solution1[7, 6] = 1;
+            solution1[7, 7] = 1;
+            solution1[7, 8] = 1;
+            solution1[7, 9] = 1;
+            solution1[8, 6] = 1;
+            solution1[8, 7] = 1;
+            solution1[8, 8] = 1;
+            solution1[8, 9] = 1;
+            solution1[9, 5] = 1;
+            solution1[9, 6] = 1;
+            solution1[9, 7] = 1;
+        }
+
     }
 }

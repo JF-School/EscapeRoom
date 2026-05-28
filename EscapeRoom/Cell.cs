@@ -37,6 +37,11 @@ namespace EscapeRoom
             set { _color = value; }
         }
 
+        public CellState State
+        {
+            get { return _cellState; }
+        }
+
         public bool Update(MouseState mouseState, MouseState prevMouseState)
         {
             if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
@@ -59,17 +64,17 @@ namespace EscapeRoom
         }
         public void FillToggle()
         {
-            if (_cellState == CellState.Empty)
+            if (_cellState == CellState.Empty || _cellState == CellState.Crossed)
                 _cellState = CellState.Filled;
-            else if (_cellState == CellState.Filled || _cellState == CellState.Crossed)
+            else if (_cellState == CellState.Filled)
                 _cellState = CellState.Empty;
         }
 
         public void CrossToggle()
         {
-            if (_cellState == CellState.Empty)
+            if (_cellState == CellState.Empty || _cellState == CellState.Filled)
                 _cellState = CellState.Crossed;
-            else if (_cellState == CellState.Filled || _cellState == CellState.Crossed)
+            else if (_cellState == CellState.Crossed)
                 _cellState = CellState.Empty;
         }
 

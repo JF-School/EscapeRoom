@@ -29,6 +29,7 @@ namespace EscapeRoom
             _location = location;
             _color = color;
             _cellBoard = new Cell[10, 10];
+            _solutionBoard = new int[10, 10];
         
 
             for (int y = 0; y < 10; y++)
@@ -38,7 +39,7 @@ namespace EscapeRoom
                 }
         }
 
-        public void Update(MouseState mouseState, MouseState prevMouseState)
+        public bool Update(MouseState mouseState, MouseState prevMouseState)
         {
             for (int y = 0; y < 10; y++)
                 for (int x = 0; x < 10; x++)
@@ -46,6 +47,14 @@ namespace EscapeRoom
                     _cellBoard[x, y].Update(mouseState, prevMouseState);
                 }
             // Check for a win
+            for (int y = 0; y < 10; y++)
+                for (int x = 0; x < 10; x++)
+                {
+                     if ((_cellBoard[x, y].State != CellState.Filled && _solutionBoard[x, y] != 1))
+                        return false;
+
+                }
+            return true;
 
         }
 
