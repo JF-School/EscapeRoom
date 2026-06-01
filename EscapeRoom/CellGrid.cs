@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,6 +40,32 @@ namespace EscapeRoom
                 }
         }
 
+        public void DebugSolution()
+        {
+            for (int y = 0; y < 10; y++)
+            {
+                for (int x = 0; x < 10; x++)
+                {
+                    Debug.Write(_solutionBoard[x, y]);
+                }
+                Debug.WriteLine(" ");
+            }
+        }
+
+        public void DebugState()
+        {
+            for (int y = 0; y < 10; y++)
+            {
+                for (int x = 0; x < 10; x++)
+                {
+                    Debug.Write(CheckWin().ToString());
+                }
+                Debug.WriteLine(" ");
+            }
+            DebugSolution();
+        }
+
+
         public bool Update(MouseState mouseState, MouseState prevMouseState)
         {
             for (int y = 0; y < 10; y++)
@@ -46,20 +73,17 @@ namespace EscapeRoom
                 {
                     _cellBoard[x, y].Update(mouseState, prevMouseState);
                 }
-            // Check for a win
-            for (int y = 0; y < 10; y++)
-                for (int x = 0; x < 10; x++)
-                {
-                     if ((_cellBoard[x, y].State != CellState.Filled && _solutionBoard[x, y] != 1))
-                        return false;
 
-                }
-            return true;
 
+            return CheckWin();
+
+                // Check for a win
+                
         }
 
         public int[,] Solution
         {
+            get { return _solutionBoard; }
             set { _solutionBoard = value; }
         }
         public void Draw(SpriteBatch spriteBatch)
@@ -69,7 +93,29 @@ namespace EscapeRoom
                     _cellBoard[x, y].Draw(spriteBatch);
         }
 
+        public bool CheckWin()
+        {
+            bool win = true;
+            for (int y = 0; y < 10; y++)
+            {
 
+            
+                for (int x = 0; x < 10; x++)
+                {
+                    //Debug.Write(_cellBoard[x, y].State + _solutionBoard[x, y]);
+                    if (!(_cellBoard[x, y].State == CellState.Filled && _solutionBoard[x, y] == 1))
+                    {
+
+                        win = false;
+
+                    }
+                }
+
+            }
+
+            return win;
+
+        }
 
     }
 }
