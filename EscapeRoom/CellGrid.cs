@@ -58,10 +58,14 @@ namespace EscapeRoom
             {
                 for (int x = 0; x < 10; x++)
                 {
-                    Debug.Write(CheckWin().ToString());
+                    Debug.Write(_cellBoard[x, y].State);
                 }
                 Debug.WriteLine(" ");
             }
+            Debug.WriteLine(" ");
+            Debug.Write(CheckWin().ToString());
+            Debug.WriteLine(" ");
+            Debug.WriteLine(" ");
             DebugSolution();
         }
 
@@ -103,12 +107,16 @@ namespace EscapeRoom
                 for (int x = 0; x < 10; x++)
                 {
                     //Debug.Write(_cellBoard[x, y].State + _solutionBoard[x, y]);
-                    if (!(_cellBoard[x, y].State == CellState.Filled && _solutionBoard[x, y] == 1))
+                    // _cellBoard[x, y].State == CellState.Filled && _solutionBoard[x, y] == 1
+
+                    if (_cellBoard[x, y].State == CellState.Filled && _solutionBoard[x, y] == 1)
                     {
 
                         win = false;
-
+                        //Debug.WriteLine($"Loss detected at ({x},{y}). Board =  {_cellBoard[x, y].State}, Solution = {_solutionBoard[x, y]} ");
                     }
+
+
                 }
 
             }
