@@ -152,7 +152,7 @@ namespace EscapeRoom
                         case 2: // nonogram
                             if (keyboardState.IsKeyDown(Keys.LeftAlt) && prevKeyboardState.IsKeyUp(Keys.LeftAlt))
                                 cellGrid.DebugState();
-                            if (!cellGrid.Update(mouseState, prevMouseState))
+                            if (cellGrid.Update(mouseState, prevMouseState))
                                 Exit();
                             
                             break;

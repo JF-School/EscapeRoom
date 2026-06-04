@@ -77,12 +77,22 @@ namespace EscapeRoom
                 {
                     _cellBoard[x, y].Update(mouseState, prevMouseState);
                 }
-
-
             return CheckWin();
+            // Check for a win    
+        }
 
-                // Check for a win
-                
+        public bool CheckWin()
+        {
+            bool win = true;
+            for (int y = 0; y < 10; y++)
+                for (int x = 0; x < 10; x++)
+                {
+                    bool isFilledCell = _cellBoard[x, y].State == CellState.Filled;
+                    bool isFilledSolution = _solutionBoard[x, y] == 1;
+                    if (isFilledCell != isFilledSolution)
+                        win = false;
+                }
+            return win;
         }
 
         public int[,] Solution
@@ -97,33 +107,12 @@ namespace EscapeRoom
                     _cellBoard[x, y].Draw(spriteBatch);
         }
 
-        public bool CheckWin()
-        {
-            bool win = true;
-            for (int y = 0; y < 10; y++)
-            {
+        
 
-            
-                for (int x = 0; x < 10; x++)
-                {
-                    //Debug.Write(_cellBoard[x, y].State + _solutionBoard[x, y]);
-                    // _cellBoard[x, y].State == CellState.Filled && _solutionBoard[x, y] == 1
+        //Debug.Write(_cellBoard[x, y].State + _solutionBoard[x, y]);
+        // _cellBoard[x, y].State == CellState.Filled && _solutionBoard[x, y] == 1
+        //Debug.WriteLine($"Loss detected at ({x},{y}). Board =  {_cellBoard[x, y].State}, Solution = {_solutionBoard[x, y]} ");
 
-                    if (_cellBoard[x, y].State == CellState.Filled && _solutionBoard[x, y] == 1)
-                    {
-
-                        win = false;
-                        //Debug.WriteLine($"Loss detected at ({x},{y}). Board =  {_cellBoard[x, y].State}, Solution = {_solutionBoard[x, y]} ");
-                    }
-
-
-                }
-
-            }
-
-            return win;
-
-        }
 
     }
 }
