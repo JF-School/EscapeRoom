@@ -47,7 +47,7 @@ namespace EscapeRoom
 
         }
 
-        public void Update(MouseState mouseState, MouseState prevMouseState)
+        public bool Update(MouseState mouseState, MouseState prevMouseState)
         {
             // Turn Light On and Off
             for (int y = 0; y < 5; y++)
@@ -66,6 +66,19 @@ namespace EscapeRoom
                             _lightBoard[x, y + 1].Toggle();
                     }
                 }
+            return CheckLights();
+        }
+
+        public bool CheckLights()
+        {
+            for (int y = 0; y < 5; y++)
+                for (int x = 0; x < 5; x++)
+                {
+                    bool _lightsOut = _lightBoard[x, y].Enabled == false;
+                    if (_lightsOut != true)
+                        return false;
+                }
+            return true;
         }
 
         public void Draw(SpriteBatch spriteBatch)

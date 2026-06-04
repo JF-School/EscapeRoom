@@ -87,9 +87,9 @@ namespace EscapeRoom
             for (int y = 0; y < 10; y++)
                 for (int x = 0; x < 10; x++)
                 {
-                    bool isFilledCell = _cellBoard[x, y].State == CellState.Filled;
-                    bool isFilledSolution = _solutionBoard[x, y] == 1;
-                    if (isFilledCell != isFilledSolution)
+                    bool _isFilledCell = _cellBoard[x, y].State == CellState.Filled;
+                    bool _isFilledSolution = _solutionBoard[x, y] == 1;
+                    if (_isFilledCell != _isFilledSolution)
                         win = false;
                 }
             return win;

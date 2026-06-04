@@ -30,10 +30,11 @@ namespace EscapeRoom
 
         Screen screen;
 
-        Texture2D rectTexture, xTexture;
+        Texture2D rectTexture, xTexture, backTexture, tableTexture;
         Texture2D phTexture; // placeholder texture, remove after textures are finalized.
         Texture2D lightsPhTexture, nonogramPhTexture, fifteenPhTexture; // placeholder texture
-        Rectangle lightsBtn, nonogramBtn, fifteenBtn;
+        Rectangle lightsBtn, nonogramBtn, fifteenBtn, backBtn;
+        Rectangle lightsBack;
 
         LightGrid lightGrid;
         CellGrid cellGrid;
@@ -43,9 +44,9 @@ namespace EscapeRoom
         int[,] solution1, solution2, solution3;
         int randomSolution;
 
-
         Random generator;
         int puzzle; // puzzles
+        bool loDone, noDone;
 
         public Game1()
         {
@@ -66,6 +67,9 @@ namespace EscapeRoom
             puzzle = 0; // zero puzzle = original window
             generator = new Random();
 
+            lightsBack = new Rectangle(225, 70, 300, 300);
+
+            backBtn = new Rectangle(10, 10, 50, 50);
             lightsBtn = new Rectangle(450, 0, 100, 100);
             nonogramBtn = new Rectangle(25, 215, 100, 100);
             fifteenBtn = new Rectangle(610, 240, 100, 100);
@@ -99,9 +103,13 @@ namespace EscapeRoom
             //        break;
             //}
 
+            // boolean variables to decide if something is complete
+            loDone = false; // lights out
+            noDone = false; // nonogram
+
         }
 
-        
+
 
         protected override void LoadContent()
         {
@@ -111,6 +119,10 @@ namespace EscapeRoom
 
             rectTexture = Content.Load<Texture2D>("Images/rectangle");
             xTexture = Content.Load<Texture2D>("Images/Red_X");
+            backTexture = Content.Load<Texture2D>("Images/backbutton");
+            tableTexture = Content.Load<Texture2D>("Images/tableback");
+
+            // placeholder textures
             phTexture = Content.Load<Texture2D>("Placeholders/escaperoomplaceholder");
             lightsPhTexture = Content.Load<Texture2D>("Placeholders/lightsoutbutton");
             nonogramPhTexture = Content.Load<Texture2D>("Placeholders/nonogrambutton");
@@ -147,13 +159,20 @@ namespace EscapeRoom
                             }
                             break;
                         case 1: // lights out
-                            lightGrid.Update(mouseState, prevMouseState);
+                            if (!loDone)
+                                if (lightGrid.Update(mouseState, prevMouseState))
+                                    loDone = true;
+                            if (loDone)
+                                BackButton();
                             break;
                         case 2: // nonogram
                             if (keyboardState.IsKeyDown(Keys.LeftAlt) && prevKeyboardState.IsKeyUp(Keys.LeftAlt))
                                 cellGrid.DebugState();
-                            if (cellGrid.Update(mouseState, prevMouseState))
-                                Exit();
+                            if (!noDone)
+                                if (cellGrid.Update(mouseState, prevMouseState))
+                                    noDone = true;
+                            if (noDone)
+                                BackButton();
                             
                             break;
                         case 3: // 15 sliding puzzle
@@ -212,17 +231,24 @@ namespace EscapeRoom
                     {
                         case 0: // normal screen
                             _spriteBatch.Draw(phTexture, window, Color.White);
-                            _spriteBatch.Draw(lightsPhTexture, lightsBtn, Color.White);
-                            _spriteBatch.Draw(nonogramPhTexture, nonogramBtn, Color.White);
+                            if (!loDone)
+                                _spriteBatch.Draw(lightsPhTexture, lightsBtn, Color.White);
+                            if (!noDone)
+                                _spriteBatch.Draw(nonogramPhTexture, nonogramBtn, Color.White);
                             _spriteBatch.Draw(fifteenPhTexture, fifteenBtn, Color.White);
                             break;
                         case 1: // lights out
-                            _spriteBatch.Draw(rectTexture, window, Color.Black);
+                            _spriteBatch.Draw(tableTexture, window, Color.White);
+                            _spriteBatch.Draw(rectTexture, lightsBack, Color.Black);
                             lightGrid.Draw(_spriteBatch);
+                            if (loDone)
+                                _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                         case 2: // nonogram
                             _spriteBatch.Draw(rectTexture, window, Color.Gray);
                             cellGrid.Draw(_spriteBatch);
+                            if (noDone)
+                                _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                         case 3: // 15 sliding puzzle
                             break;
@@ -265,6 +291,16 @@ namespace EscapeRoom
 
             base.Draw(gameTime);
         }
+
+        public void BackButton()
+        {
+            if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+            {
+                if (backBtn.Contains(mouseState.Position))
+                    puzzle = 0;
+            }
+        }
+
 
         public void NonogramSolution1()
         {
