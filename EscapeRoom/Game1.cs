@@ -180,17 +180,7 @@ namespace EscapeRoom
                     }
                     break;
                 case Screen.CipherPuzzles:
-                    switch (puzzle)
-                    {
-                        case 0: // normal screen
-                            break;
-                        case 1: // caesar cipher
-                            break;
-                        case 2: // morse code
-                            break;
-                        case 3: // idk
-                            break;
-                    }
+                    // add content here
                     break;
                 case Screen.FunPuzzles:
                     switch (puzzle)
@@ -255,18 +245,8 @@ namespace EscapeRoom
                     }
                     break;
                 case Screen.CipherPuzzles:
-                    switch (puzzle)
-                    {
-                        case 0: // normal screen
-                            _spriteBatch.Draw(phTexture, window, Color.White);
-                            break;
-                        case 1: // caesar cipher
-                            break;
-                        case 2: // morse code
-                            break;
-                        case 3: // idk
-                            break;
-                    }
+                    _spriteBatch.Draw(phTexture, window, Color.White);
+                    // add content here
                     break;
                 case Screen.FunPuzzles:
                     switch (puzzle)
