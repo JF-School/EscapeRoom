@@ -36,6 +36,12 @@ namespace EscapeRoom
         Rectangle lightsBtn, nonogramBtn, fifteenBtn, backBtn;
         Rectangle lightsBack;
 
+        Texture2D sunPosterFront, todayPosterFront, skillsPosterFront, bdayPosterFront; // front textures
+        Texture2D sunPosterBack, todayPosterBack, skillsPosterBack, bdayPosterBack; // back textures
+        Texture2D wallpaperTexture; // wallpaper background 
+        Rectangle sunRect, todayRect, skillsRect, bdayRect, maxPosterRect;
+        bool backSun, backToday, backSkills, backBday; // false = front, true = back;
+
         LightGrid lightGrid;
         CellGrid cellGrid;
         MouseState mouseState, prevMouseState;
@@ -63,16 +69,33 @@ namespace EscapeRoom
             _graphics.PreferredBackBufferWidth = window.Width;
             _graphics.ApplyChanges();
 
-            screen = Screen.ClassicPuzzles;
+            screen = Screen.CipherPuzzles;
             puzzle = 0; // zero puzzle = original window
             generator = new Random();
 
+            // first screen
             lightsBack = new Rectangle(225, 70, 300, 300);
-
             backBtn = new Rectangle(10, 10, 50, 50);
             lightsBtn = new Rectangle(450, 0, 100, 100);
             nonogramBtn = new Rectangle(25, 215, 100, 100);
             fifteenBtn = new Rectangle(610, 240, 100, 100);
+
+            // second screen
+            // NORMAL VALUES
+            sunRect = new Rectangle(10, 122, 200, 256);
+            todayRect = new Rectangle(212, 122, 192, 256);
+            skillsRect = new Rectangle(407, 122, 190, 256);
+            bdayRect = new Rectangle(599, 122, 190, 256);
+
+            // STRETCHED OUT VALUES
+            //sunRect = new Rectangle(11, 54, 200, 396);
+            //todayRect = new Rectangle(213, 54, 192, 396);
+            //skillsRect = new Rectangle(408, 54, 190, 396);
+            //bdayRect = new Rectangle(599, 54, 190, 396);
+
+            maxPosterRect = new Rectangle(213, 0, 375, 500);
+            backSun = false; backToday = false; backSkills = false; backBday = false;
+
 
             // TODO: Add your initialization logic here
 
@@ -117,6 +140,7 @@ namespace EscapeRoom
 
             // TODO: use this.Content to load your game content here
 
+            // images
             rectTexture = Content.Load<Texture2D>("Images/rectangle");
             xTexture = Content.Load<Texture2D>("Images/Red_X");
             backTexture = Content.Load<Texture2D>("Images/backbutton");
@@ -127,6 +151,16 @@ namespace EscapeRoom
             lightsPhTexture = Content.Load<Texture2D>("Placeholders/lightsoutbutton");
             nonogramPhTexture = Content.Load<Texture2D>("Placeholders/nonogrambutton");
             fifteenPhTexture = Content.Load<Texture2D>("Placeholders/fifteenslidingpuzzle");
+
+            // posters
+            sunPosterFront = Content.Load<Texture2D>("Posters/SunFront");
+            sunPosterBack = Content.Load<Texture2D>("Posters/SunBack");
+            todayPosterFront = Content.Load<Texture2D>("Posters/TodayFront");
+            todayPosterBack = Content.Load<Texture2D>("Posters/TodayBack");
+            skillsPosterFront = Content.Load<Texture2D>("Posters/SkillsFront");
+            skillsPosterBack = Content.Load<Texture2D>("Posters/SkillsBack");
+            bdayPosterFront = Content.Load<Texture2D>("Posters/BirthdayFront");
+            bdayPosterBack = Content.Load<Texture2D>("Posters/BirthdayBack");
         }
 
         protected override void Update(GameTime gameTime)
@@ -180,7 +214,50 @@ namespace EscapeRoom
                     }
                     break;
                 case Screen.CipherPuzzles:
-                    // add content here
+                    switch (puzzle)
+                    {
+                        case 0:
+                            if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                            {
+                                if (sunRect.Contains(mouseState.Position))
+                                    puzzle = 1;
+                                if (todayRect.Contains(mouseState.Position))
+                                    puzzle = 2;
+                                if (skillsRect.Contains(mouseState.Position))
+                                    puzzle = 3;
+                                if (bdayRect.Contains(mouseState.Position))
+                                    puzzle = 4;
+                            }
+                            if (mouseState.RightButton == ButtonState.Pressed && prevMouseState.RightButton == ButtonState.Released)
+                            {
+                                if (sunRect.Contains(mouseState.Position))
+                                    backSun = !backSun;
+                                if (todayRect.Contains(mouseState.Position))
+                                    backToday = !backToday;
+                                if (skillsRect.Contains(mouseState.Position))
+                                    backSkills = !backSkills;
+                                if (bdayRect.Contains(mouseState.Position))
+                                    backBday = !backBday;
+
+                            }
+                            break;
+                        case 1: // sun poster
+                            BackButton();
+                            backSun = BackToggle(maxPosterRect, backSun);
+                            break;
+                        case 2: // today poster
+                            BackButton();
+                            backToday = BackToggle(maxPosterRect, backToday);
+                            break;
+                        case 3: // skills poster
+                            BackButton();
+                            backSkills = BackToggle(maxPosterRect, backSkills);
+                            break;
+                        case 4: // birthday poster
+                            BackButton();
+                            backBday = BackToggle(maxPosterRect, backBday);
+                            break;
+                    }
                     break;
                 case Screen.FunPuzzles:
                     switch (puzzle)
@@ -245,8 +322,64 @@ namespace EscapeRoom
                     }
                     break;
                 case Screen.CipherPuzzles:
-                    _spriteBatch.Draw(phTexture, window, Color.White);
-                    // add content here
+                    switch (puzzle)
+                    {
+                        case 0: // posters
+                            _spriteBatch.Draw(rectTexture, window, Color.LightSkyBlue);
+
+                            if (backSun)
+                                _spriteBatch.Draw(sunPosterBack, sunRect, Color.White);
+                            else
+                                _spriteBatch.Draw(sunPosterFront, sunRect, Color.White);
+
+                            if (backToday)
+                                _spriteBatch.Draw(todayPosterBack, todayRect, Color.White);
+                            else
+                                _spriteBatch.Draw(todayPosterFront, todayRect, Color.White);
+
+                            if (backSkills)
+                                _spriteBatch.Draw(skillsPosterBack, skillsRect, Color.White);
+                            else
+                                _spriteBatch.Draw(skillsPosterFront, skillsRect, Color.White);
+
+                            if (backBday)
+                                _spriteBatch.Draw(bdayPosterBack, bdayRect, Color.White);
+                            else
+                                _spriteBatch.Draw(bdayPosterFront, bdayRect, Color.White);
+                                break;
+                        case 1: // sun poster
+                            _spriteBatch.Draw(rectTexture, window, Color.LightSkyBlue);
+                            _spriteBatch.Draw(backTexture, backBtn, Color.White);
+                            if (backSun)
+                                _spriteBatch.Draw(sunPosterBack, maxPosterRect, Color.White);
+                            else
+                                _spriteBatch.Draw(sunPosterFront, maxPosterRect, Color.White);
+                            break;
+                        case 2: // today poster
+                            _spriteBatch.Draw(rectTexture, window, Color.LightSkyBlue);
+                            _spriteBatch.Draw(backTexture, backBtn, Color.White);
+                            if (backToday)
+                                _spriteBatch.Draw(todayPosterBack, maxPosterRect, Color.White);
+                            else
+                                _spriteBatch.Draw(todayPosterFront, maxPosterRect, Color.White);
+                            break;
+                        case 3: // poster skills
+                            _spriteBatch.Draw(rectTexture, window, Color.LightSkyBlue);
+                            _spriteBatch.Draw(backTexture, backBtn, Color.White);
+                            if (backSkills)
+                                _spriteBatch.Draw(skillsPosterBack, maxPosterRect, Color.White);
+                            else
+                                _spriteBatch.Draw(skillsPosterFront, maxPosterRect, Color.White);
+                                break;
+                        case 4: // bday poster
+                            _spriteBatch.Draw(rectTexture, window, Color.LightSkyBlue);
+                            _spriteBatch.Draw(backTexture, backBtn, Color.White);
+                            if (backBday)
+                                _spriteBatch.Draw(bdayPosterBack, maxPosterRect, Color.White);
+                            else
+                                _spriteBatch.Draw(bdayPosterFront, maxPosterRect, Color.White);
+                                break;
+                    }
                     break;
                 case Screen.FunPuzzles:
                     switch (puzzle)
@@ -279,6 +412,16 @@ namespace EscapeRoom
                 if (backBtn.Contains(mouseState.Position))
                     puzzle = 0;
             }
+        }
+
+        public bool BackToggle(Rectangle poster, bool toggle)
+        {
+            if (mouseState.RightButton == ButtonState.Pressed && prevMouseState.RightButton == ButtonState.Released)
+            {
+                if (poster.Contains(mouseState.Position))
+                    toggle = !toggle;
+            }
+            return toggle;
         }
 
 
