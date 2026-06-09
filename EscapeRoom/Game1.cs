@@ -30,18 +30,33 @@ namespace EscapeRoom
 
         Screen screen;
 
+        // FIRST ROOM
         Texture2D rectTexture, xTexture, backTexture, tableTexture;
         Texture2D phTexture; // placeholder texture, remove after textures are finalized.
         Texture2D lightsPhTexture, nonogramPhTexture, fifteenPhTexture; // placeholder texture
         Rectangle lightsBtn, nonogramBtn, fifteenBtn, backBtn;
         Rectangle lightsBack;
 
+        // POSTER/CIPHER ROOM
+
+        bool lights; // true = on, false = off;
+        
+
+        // LIGHTS ON
         Texture2D sunPosterFront, todayPosterFront, alertPosterFront, bdayPosterFront; // front textures
         Texture2D sunPosterBack, todayPosterBack, alertPosterBack, bdayPosterBack; // back textures
         Texture2D wallpaperTexture; // wallpaper background 
         Rectangle sunRect, todayRect, alertRect, bdayRect, maxPosterRect;
         bool backSun, backToday, backAlert, backBday; // false = front, true = back;
-        bool lights; // true = on, false = off;
+
+        // LIGHTS OFF
+        Texture2D moonPosterFront, yesterdayPosterFront, barcodePosterFront, canadaPosterFront;
+        Texture2D moonPosterBack, yesterdayPosterBack, barcodePosterBack, canadaPosterBack;
+
+        // SPECIAL POSTERS
+        bool sunDisappear, needle, warningClick, tomorrowToggle;
+        Texture2D tomorrowPosterFront;
+        Texture2D tomorrowPosterBack;
 
         LightGrid lightGrid;
         CellGrid cellGrid;
@@ -97,6 +112,7 @@ namespace EscapeRoom
             maxPosterRect = new Rectangle(213, 0, 375, 500);
             backSun = false; backToday = false; backAlert = false; backBday = false;
             lights = true;
+            sunDisappear = false; needle = false; warningClick = false; tomorrowToggle = false;
 
 
             // TODO: Add your initialization logic here
@@ -163,6 +179,20 @@ namespace EscapeRoom
             alertPosterBack = Content.Load<Texture2D>("Posters/AlertBack");
             bdayPosterFront = Content.Load<Texture2D>("Posters/BirthdayFront");
             bdayPosterBack = Content.Load<Texture2D>("Posters/BirthdayBack");
+
+            // night posters
+            moonPosterFront = Content.Load<Texture2D>("Posters/MoonFront");
+            moonPosterBack = Content.Load<Texture2D>("Posters/MoonBack");
+            yesterdayPosterFront = Content.Load<Texture2D>("Posters/YesterdayFront");
+            yesterdayPosterBack = Content.Load<Texture2D>("Posters/YesterdayBack");
+            barcodePosterFront = Content.Load<Texture2D>("Posters/BarcodeFront");
+            barcodePosterBack = Content.Load<Texture2D>("Posters/BarcodeBack");
+            canadaPosterFront = Content.Load<Texture2D>("Posters/CanadaFront");
+            canadaPosterBack = Content.Load<Texture2D>("Posters/CanadaBack");
+
+            // special posters
+            tomorrowPosterFront = Content.Load<Texture2D>("Posters/TomorrowFront");
+            tomorrowPosterBack = Content.Load<Texture2D>("Posters/TomorrowBack");
         }
 
         protected override void Update(GameTime gameTime)
@@ -252,6 +282,13 @@ namespace EscapeRoom
                         case 2: // today poster
                             BackButton();
                             backToday = BackToggle(maxPosterRect, backToday);
+                            if (lights && !backToday)
+                            {
+                                if (keyboardState.IsKeyDown(Keys.LeftControl) && (keyboardState.IsKeyDown(Keys.K) && prevKeyboardState.IsKeyUp(Keys.K)))
+                                {
+                                    tomorrowToggle = true;
+                                }
+                            }
                             break;
                         case 3: // alert poster
                             BackButton();
@@ -332,35 +369,42 @@ namespace EscapeRoom
                             if (lights)
                             {
                                 _spriteBatch.Draw(rectTexture, window, Color.LightSkyBlue);
+                                DrawPoster(backSun, sunPosterFront, sunPosterBack, sunRect);
+                                if (!tomorrowToggle)
+                                    DrawPoster(backToday, todayPosterFront, todayPosterBack, todayRect);
+                                else
+                                    DrawPoster(backToday, tomorrowPosterFront, tomorrowPosterBack, todayRect);
+                                DrawPoster(backAlert, alertPosterFront, alertPosterBack, alertRect);
+                                DrawPoster(backBday, bdayPosterFront, bdayPosterBack, bdayRect);
                             }
                             else
                             {
                                 _spriteBatch.Draw(rectTexture, window, Color.DarkSlateGray);
+                                DrawPoster(backSun, moonPosterFront, moonPosterBack, sunRect);
+                                DrawPoster(backToday, yesterdayPosterFront, yesterdayPosterBack, todayRect);
+                                DrawPoster(backAlert, barcodePosterFront, barcodePosterBack, alertRect);
+                                DrawPoster(backBday, canadaPosterFront, canadaPosterBack, bdayRect);
                             }
-                            DrawPoster(backSun, sunPosterFront, sunPosterBack, sunRect);
-                            DrawPoster(backToday, todayPosterFront, todayPosterBack, todayRect);
-                            DrawPoster(backAlert, alertPosterFront, alertPosterBack, alertRect);
-                            DrawPoster(backBday, bdayPosterFront, bdayPosterBack, bdayRect);
+                            
                             break;
                         case 1: // sun poster
-                            LightsToggle();
+                            LightsToggle(backSun, sunPosterFront, sunPosterBack, moonPosterFront, moonPosterBack);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
-                            DrawPoster(backSun, sunPosterFront, sunPosterBack, maxPosterRect);
                             break;
                         case 2: // today poster
-                            LightsToggle();
+                            if (!tomorrowToggle)
+                                LightsToggle(backToday, todayPosterFront, todayPosterBack, yesterdayPosterFront, yesterdayPosterBack);
+                            else
+                                LightsToggle(backToday, tomorrowPosterFront, tomorrowPosterBack, yesterdayPosterFront, yesterdayPosterBack);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
-                            DrawPoster(backToday, todayPosterFront, todayPosterBack, maxPosterRect);
                             break;
                         case 3: // alert poster
-                            LightsToggle();
+                            LightsToggle(backAlert, alertPosterFront, alertPosterBack, barcodePosterFront, barcodePosterBack);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
-                            DrawPoster(backAlert, alertPosterFront, alertPosterBack, maxPosterRect);
                             break;
                         case 4: // bday poster
-                            LightsToggle();
+                            LightsToggle(backBday, bdayPosterFront, bdayPosterBack, canadaPosterFront, canadaPosterBack);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
-                            DrawPoster(backBday, bdayPosterFront, bdayPosterBack, maxPosterRect);
                             break;
                     }
                     break;
@@ -397,12 +441,18 @@ namespace EscapeRoom
             }
         }
 
-        public void LightsToggle()
+        public void LightsToggle(bool toggle, Texture2D lightsFront, Texture2D lightsBack, Texture2D noLightsFront, Texture2D noLightsBack)
         {
             if (lights)
+            {
                 _spriteBatch.Draw(rectTexture, window, Color.LightSkyBlue);
+                DrawPoster(toggle, lightsFront, lightsBack, maxPosterRect);
+            }
             else
+            {
                 _spriteBatch.Draw(rectTexture, window, Color.DarkSlateGray);
+                DrawPoster(toggle, noLightsFront, noLightsBack, maxPosterRect);
+            }
         }
 
         public bool BackToggle(Rectangle poster, bool toggle)
