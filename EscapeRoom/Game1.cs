@@ -55,8 +55,8 @@ namespace EscapeRoom
 
         // SPECIAL POSTERS
         bool sunDisappear, needle, warningClick, tomorrowToggle;
-        Texture2D tomorrowPosterFront;
-        Texture2D tomorrowPosterBack;
+        Texture2D tomorrowPosterFront, chestPosterFront;
+        Texture2D tomorrowPosterBack, chestPosterBack;
 
         LightGrid lightGrid;
         CellGrid cellGrid;
