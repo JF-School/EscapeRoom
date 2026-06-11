@@ -13,9 +13,6 @@
   <ItemGroup>
     <None Remove="Content\Posters\SkillsBack.png" />
     <None Remove="Content\Posters\SkillsFront.png" />
-    <None Remove="Content\Posters\TodayFront.png" />
-    <None Remove="Content\Posters\yesterdayBack.png" />
-    <None Remove="Content\Posters\yesterdayFront.png" />
     <None Remove="Content\TodayFront.png" />
     <None Remove="Content\YesterdayBack.png" />
     <None Remove="Content\YesterdayFront.png" />

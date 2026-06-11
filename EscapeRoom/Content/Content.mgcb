@@ -49,6 +49,42 @@
 /processorParam:TextureFormat=Color
 /build:Images/Red_X.png
 
+#begin Images/solutionOne.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/solutionOne.png
+
+#begin Images/solutionThree.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/solutionThree.png
+
+#begin Images/solutionTwo.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/solutionTwo.png
+
 #begin Images/tableback.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -205,6 +241,30 @@
 /processorParam:TextureFormat=Color
 /build:Posters/CanadaFront.png
 
+#begin Posters/ChestBack.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Posters/ChestBack.png
+
+#begin Posters/ChestFront.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Posters/ChestFront.png
+
 #begin Posters/MoonBack.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -228,6 +288,30 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Posters/MoonFront.png
+
+#begin Posters/ScannerBack.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Posters/ScannerBack.png
+
+#begin Posters/ScannerFront.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Posters/ScannerFront.png
 
 #begin Posters/SunBack.png
 /importer:TextureImporter
@@ -265,6 +349,18 @@
 /processorParam:TextureFormat=Color
 /build:Posters/TodayBack.png
 
+#begin Posters/TodayFront.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Posters/TodayFront.png
+
 #begin Posters/TomorrowBack.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -289,7 +385,7 @@
 /processorParam:TextureFormat=Color
 /build:Posters/TomorrowFront.png
 
-#begin X:/My Drive/Downloads/ICS4U monogame/final project/posters/TodayFront.png
+#begin Posters/YesterdayBack.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -299,9 +395,9 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:X:/My Drive/Downloads/ICS4U monogame/final project/posters/TodayFront.png;Posters/TodayFront.png
+/build:Posters/YesterdayBack.png
 
-#begin X:/My Drive/Downloads/ICS4U monogame/final project/posters/YesterdayBack.png
+#begin Posters/YesterdayFront.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -311,17 +407,5 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:X:/My Drive/Downloads/ICS4U monogame/final project/posters/YesterdayBack.png;Posters/YesterdayBack.png
-
-#begin X:/My Drive/Downloads/ICS4U monogame/final project/posters/YesterdayFront.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:X:/My Drive/Downloads/ICS4U monogame/final project/posters/YesterdayFront.png;Posters/YesterdayFront.png
+/build:Posters/YesterdayFront.png
 

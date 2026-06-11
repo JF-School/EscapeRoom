@@ -32,6 +32,7 @@ namespace EscapeRoom
 
         // FIRST ROOM
         Texture2D rectTexture, xTexture, backTexture, tableTexture;
+        Texture2D solOneTexture, solTwoTexture, solThreeTexture;
         Texture2D phTexture; // placeholder texture, remove after textures are finalized.
         Texture2D lightsPhTexture, nonogramPhTexture, fifteenPhTexture; // placeholder texture
         Rectangle lightsBtn, nonogramBtn, fifteenBtn, backBtn;
@@ -55,8 +56,8 @@ namespace EscapeRoom
 
         // SPECIAL POSTERS
         bool sunDisappear, needle, warningClick, tomorrowToggle;
-        Texture2D tomorrowPosterFront, chestPosterFront;
-        Texture2D tomorrowPosterBack, chestPosterBack;
+        Texture2D tomorrowPosterFront, chestPosterFront, scannerPosterFront;
+        Texture2D tomorrowPosterBack, chestPosterBack, scannerPosterBack;
 
         LightGrid lightGrid;
         CellGrid cellGrid;
@@ -124,25 +125,23 @@ namespace EscapeRoom
             solution1 = new int[10, 10];
             solution2 = new int[10, 10];
             solution3 = new int[10, 10];
-            NonogramSolution2();
-            cellGrid.Solution = solution2;
             cellGrid.DebugSolution();
-            //randomSolution = generator.Next(1, 4);
-            //switch (randomSolution)
-            //{
-            //    case 1:
-            //        NonogramSolution1();
-            //        cellGrid.Solution = solution1;
-            //        break;
-            //    case 2:
-            //        NonogramSolution2();
-            //        cellGrid.Solution = solution2;
-            //        break;
-            //    case 3:
-            //        NonogramSolution3();
-            //        cellGrid.Solution = solution3;
-            //        break;
-            //}
+            randomSolution = generator.Next(1, 4);
+            switch (randomSolution)
+            {
+                case 1:
+                    NonogramSolution1();
+                    cellGrid.Solution = solution1;
+                    break;
+                case 2:
+                    NonogramSolution2();
+                    cellGrid.Solution = solution2;
+                    break;
+                case 3:
+                    NonogramSolution3();
+                    cellGrid.Solution = solution3;
+                    break;
+            }
 
             // boolean variables to decide if something is complete
             loDone = false; // lights out
@@ -163,6 +162,9 @@ namespace EscapeRoom
             xTexture = Content.Load<Texture2D>("Images/Red_X");
             backTexture = Content.Load<Texture2D>("Images/backbutton");
             tableTexture = Content.Load<Texture2D>("Images/tableback");
+            solOneTexture = Content.Load<Texture2D>("Images/solutionOne");
+            solTwoTexture = Content.Load<Texture2D>("Images/solutionTwo");
+            solThreeTexture = Content.Load<Texture2D>("Images/solutionThree");
 
             // placeholder textures
             phTexture = Content.Load<Texture2D>("Placeholders/escaperoomplaceholder");
@@ -193,6 +195,11 @@ namespace EscapeRoom
             // special posters
             tomorrowPosterFront = Content.Load<Texture2D>("Posters/TomorrowFront");
             tomorrowPosterBack = Content.Load<Texture2D>("Posters/TomorrowBack");
+            chestPosterFront = Content.Load<Texture2D>("Posters/ChestFront");
+            chestPosterBack = Content.Load<Texture2D>("Posters/ChestBack");
+            scannerPosterFront = Content.Load<Texture2D>("Posters/ScannerFront");
+            scannerPosterBack = Content.Load<Texture2D>("Posters/ScannerBack");
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -278,6 +285,14 @@ namespace EscapeRoom
                         case 1: // sun poster
                             BackButton();
                             backSun = BackToggle(maxPosterRect, backSun);
+                            if (lights && !backSun)
+                            {
+                                if (keyboardState.IsKeyDown(Keys.LeftShift) && keyboardState.IsKeyDown(Keys.LeftControl) 
+                                    && (keyboardState.IsKeyDown(Keys.S) && prevKeyboardState.IsKeyUp(Keys.S)))
+                                {
+                                    sunDisappear = true;
+                                }
+                            }
                             break;
                         case 2: // today poster
                             BackButton();
@@ -354,6 +369,18 @@ namespace EscapeRoom
                             break;
                         case 2: // nonogram
                             _spriteBatch.Draw(rectTexture, window, Color.Gray);
+                            switch (randomSolution)
+                            {
+                                case 1:
+                                    _spriteBatch.Draw(solOneTexture, window, Color.White);
+                                    break;
+                                case 2:
+                                    _spriteBatch.Draw(solTwoTexture, window, Color.White);
+                                    break;
+                                case 3:
+                                    _spriteBatch.Draw(solThreeTexture, window, Color.White);
+                                    break;
+                            }
                             cellGrid.Draw(_spriteBatch);
                             if (noDone)
                                 _spriteBatch.Draw(backTexture, backBtn, Color.White);
@@ -369,7 +396,10 @@ namespace EscapeRoom
                             if (lights)
                             {
                                 _spriteBatch.Draw(rectTexture, window, Color.LightSkyBlue);
-                                DrawPoster(backSun, sunPosterFront, sunPosterBack, sunRect);
+                                if (!sunDisappear)
+                                    DrawPoster(backSun, sunPosterFront, sunPosterBack, sunRect);
+                                else
+                                    DrawPoster(backSun, chestPosterFront, chestPosterBack, sunRect);
                                 if (!tomorrowToggle)
                                     DrawPoster(backToday, todayPosterFront, todayPosterBack, todayRect);
                                 else
@@ -380,7 +410,10 @@ namespace EscapeRoom
                             else
                             {
                                 _spriteBatch.Draw(rectTexture, window, Color.DarkSlateGray);
-                                DrawPoster(backSun, moonPosterFront, moonPosterBack, sunRect);
+                                if (!sunDisappear)
+                                    DrawPoster(backSun, moonPosterFront, moonPosterBack, sunRect);
+                                else
+                                    DrawPoster(backSun, chestPosterFront, chestPosterBack, sunRect);
                                 DrawPoster(backToday, yesterdayPosterFront, yesterdayPosterBack, todayRect);
                                 DrawPoster(backAlert, barcodePosterFront, barcodePosterBack, alertRect);
                                 DrawPoster(backBday, canadaPosterFront, canadaPosterBack, bdayRect);
@@ -388,7 +421,10 @@ namespace EscapeRoom
                             
                             break;
                         case 1: // sun poster
-                            LightsToggle(backSun, sunPosterFront, sunPosterBack, moonPosterFront, moonPosterBack);
+                            if (!sunDisappear)
+                                LightsToggle(backSun, sunPosterFront, sunPosterBack, moonPosterFront, moonPosterBack);
+                            else
+                                LightsToggle(backSun, chestPosterFront, chestPosterBack, chestPosterFront, chestPosterBack);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                         case 2: // today poster
