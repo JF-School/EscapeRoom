@@ -49,6 +49,18 @@
 /processorParam:TextureFormat=Color
 /build:Images/Red_X.png
 
+#begin Images/ScannerItem.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/ScannerItem.png
+
 #begin Images/solutionOne.png
 /importer:TextureImporter
 /processor:TextureProcessor

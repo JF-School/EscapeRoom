@@ -58,6 +58,13 @@ namespace EscapeRoom
         bool sunDisappear, needle, warningClick, tomorrowToggle;
         Texture2D tomorrowPosterFront, chestPosterFront, scannerPosterFront;
         Texture2D tomorrowPosterBack, chestPosterBack, scannerPosterBack;
+        Rectangle chestToggleRect, warningSignRect;
+        int clicks;
+
+        // ITEMS
+        bool scannerEquipped;
+        Texture2D scannerTexture;
+        Rectangle scannerRect;
 
         LightGrid lightGrid;
         CellGrid cellGrid;
@@ -86,7 +93,7 @@ namespace EscapeRoom
             _graphics.PreferredBackBufferWidth = window.Width;
             _graphics.ApplyChanges();
 
-            screen = Screen.CipherPuzzles;
+            screen = Screen.ClassicPuzzles;
             puzzle = 0; // zero puzzle = original window
             generator = new Random();
 
@@ -104,16 +111,17 @@ namespace EscapeRoom
             alertRect = new Rectangle(407, 122, 190, 256);
             bdayRect = new Rectangle(599, 122, 190, 256);
 
-            // STRETCHED OUT VALUES
-            //sunRect = new Rectangle(11, 54, 200, 396);
-            //todayRect = new Rectangle(213, 54, 192, 396);
-            //skillsRect = new Rectangle(408, 54, 190, 396);
-            //bdayRect = new Rectangle(599, 54, 190, 396);
-
             maxPosterRect = new Rectangle(213, 0, 375, 500);
+            chestToggleRect = new Rectangle(213, 193, 171, 171);
+            warningSignRect = new Rectangle(270, 397, 51, 46);
+
             backSun = false; backToday = false; backAlert = false; backBday = false;
             lights = true;
             sunDisappear = false; needle = false; warningClick = false; tomorrowToggle = false;
+            clicks = 0;
+
+            scannerEquipped = false;
+            scannerRect = new Rectangle(mouseState.X, mouseState.Y, 45, 45);
 
 
             // TODO: Add your initialization logic here
@@ -200,6 +208,9 @@ namespace EscapeRoom
             scannerPosterFront = Content.Load<Texture2D>("Posters/ScannerFront");
             scannerPosterBack = Content.Load<Texture2D>("Posters/ScannerBack");
 
+            // items
+            scannerTexture = Content.Load<Texture2D>("Images/ScannerItem");
+
         }
 
         protected override void Update(GameTime gameTime)
@@ -253,6 +264,16 @@ namespace EscapeRoom
                     }
                     break;
                 case Screen.CipherPuzzles:
+                    if (keyboardState.IsKeyDown(Keys.B) && prevKeyboardState.IsKeyUp(Keys.B) && warningClick)
+                        scannerEquipped = !scannerEquipped;
+                    if (scannerEquipped)
+                    {
+                        scannerRect.X = mouseState.X;
+                        scannerRect.Y = mouseState.Y;
+                        IsMouseVisible = false;
+                    }
+                    else
+                        IsMouseVisible = true;
                     switch (puzzle)
                     {
                         case 0:
@@ -285,12 +306,13 @@ namespace EscapeRoom
                         case 1: // sun poster
                             BackButton();
                             backSun = BackToggle(maxPosterRect, backSun);
-                            if (lights && !backSun)
+                            if (lights && !backSun && !sunDisappear)
                             {
                                 if (keyboardState.IsKeyDown(Keys.LeftShift) && keyboardState.IsKeyDown(Keys.LeftControl) 
                                     && (keyboardState.IsKeyDown(Keys.S) && prevKeyboardState.IsKeyUp(Keys.S)))
                                 {
-                                    sunDisappear = true;
+                                    if (chestToggleRect.Contains(mouseState.Position))
+                                        sunDisappear = true;
                                 }
                             }
                             break;
@@ -308,6 +330,20 @@ namespace EscapeRoom
                         case 3: // alert poster
                             BackButton();
                             backAlert = BackToggle(maxPosterRect, backAlert);
+                            if (!lights && !backAlert && !warningClick)
+                            {
+                                if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                                {
+                                    if (warningSignRect.Contains(mouseState.Position))
+                                    {
+                                        clicks++;
+                                        if (clicks == 5)
+                                            warningClick = true;
+                                    }
+                                    else if (!warningSignRect.Contains(mouseState.Position))
+                                        clicks = 0;
+                                }
+                            }
                             break;
                         case 4: // birthday poster
                             BackButton();
@@ -415,34 +451,41 @@ namespace EscapeRoom
                                 else
                                     DrawPoster(backSun, chestPosterFront, chestPosterBack, sunRect);
                                 DrawPoster(backToday, yesterdayPosterFront, yesterdayPosterBack, todayRect);
-                                DrawPoster(backAlert, barcodePosterFront, barcodePosterBack, alertRect);
+                                if (!warningClick)
+                                    DrawPoster(backAlert, barcodePosterFront, barcodePosterBack, alertRect);
+                                else
+                                    DrawPoster(backAlert, scannerPosterFront, scannerPosterBack, alertRect);
                                 DrawPoster(backBday, canadaPosterFront, canadaPosterBack, bdayRect);
                             }
-                            
                             break;
                         case 1: // sun poster
                             if (!sunDisappear)
-                                LightsToggle(backSun, sunPosterFront, sunPosterBack, moonPosterFront, moonPosterBack);
+                                LightsToggle(backSun, sunPosterFront, sunPosterBack, moonPosterFront, moonPosterBack, maxPosterRect);
                             else
-                                LightsToggle(backSun, chestPosterFront, chestPosterBack, chestPosterFront, chestPosterBack);
+                                LightsToggle(backSun, chestPosterFront, chestPosterBack, chestPosterFront, chestPosterBack, maxPosterRect);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                         case 2: // today poster
                             if (!tomorrowToggle)
-                                LightsToggle(backToday, todayPosterFront, todayPosterBack, yesterdayPosterFront, yesterdayPosterBack);
+                                LightsToggle(backToday, todayPosterFront, todayPosterBack, yesterdayPosterFront, yesterdayPosterBack, maxPosterRect);
                             else
-                                LightsToggle(backToday, tomorrowPosterFront, tomorrowPosterBack, yesterdayPosterFront, yesterdayPosterBack);
+                                LightsToggle(backToday, tomorrowPosterFront, tomorrowPosterBack, yesterdayPosterFront, yesterdayPosterBack, maxPosterRect);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                         case 3: // alert poster
-                            LightsToggle(backAlert, alertPosterFront, alertPosterBack, barcodePosterFront, barcodePosterBack);
+                            if (!warningClick)
+                                LightsToggle(backAlert, alertPosterFront, alertPosterBack, barcodePosterFront, barcodePosterBack, maxPosterRect);
+                            else
+                                LightsToggle(backAlert, alertPosterFront, alertPosterBack, scannerPosterFront, scannerPosterBack, maxPosterRect);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                         case 4: // bday poster
-                            LightsToggle(backBday, bdayPosterFront, bdayPosterBack, canadaPosterFront, canadaPosterBack);
+                            LightsToggle(backBday, bdayPosterFront, bdayPosterBack, canadaPosterFront, canadaPosterBack, maxPosterRect);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                     }
+                    if (scannerEquipped)
+                        _spriteBatch.Draw(scannerTexture, scannerRect, Color.White);
                     break;
                 case Screen.FunPuzzles:
                     switch (puzzle)
@@ -477,17 +520,17 @@ namespace EscapeRoom
             }
         }
 
-        public void LightsToggle(bool toggle, Texture2D lightsFront, Texture2D lightsBack, Texture2D noLightsFront, Texture2D noLightsBack)
+        public void LightsToggle(bool toggle, Texture2D lightsFront, Texture2D lightsBack, Texture2D noLightsFront, Texture2D noLightsBack, Rectangle posterRect)
         {
             if (lights)
             {
                 _spriteBatch.Draw(rectTexture, window, Color.LightSkyBlue);
-                DrawPoster(toggle, lightsFront, lightsBack, maxPosterRect);
+                DrawPoster(toggle, lightsFront, lightsBack, posterRect);
             }
             else
             {
                 _spriteBatch.Draw(rectTexture, window, Color.DarkSlateGray);
-                DrawPoster(toggle, noLightsFront, noLightsBack, maxPosterRect);
+                DrawPoster(toggle, noLightsFront, noLightsBack, posterRect);
             }
         }
 
