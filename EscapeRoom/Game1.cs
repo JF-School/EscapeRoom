@@ -167,7 +167,7 @@ namespace EscapeRoom
 
             // images
             rectTexture = Content.Load<Texture2D>("Images/rectangle");
-            xTexture = Content.Load<Texture2D>("Images/Red_X");
+            xTexture = Content.Load<Texture2D>("Images/redX");
             backTexture = Content.Load<Texture2D>("Images/backbutton");
             tableTexture = Content.Load<Texture2D>("Images/tableback");
             solOneTexture = Content.Load<Texture2D>("Images/solutionOne");
@@ -277,6 +277,12 @@ namespace EscapeRoom
                     switch (puzzle)
                     {
                         case 0:
+                            SetMouseCursor(sunRect);
+                            SetMouseCursor(todayRect);
+                            SetMouseCursor(alertRect);
+                            SetMouseCursor(bdayRect);
+                            if (!sunRect.Contains(mouseState.Position) && !todayRect.Contains(mouseState.Position) && !alertRect.Contains(mouseState.Position) && !bdayRect.Contains(mouseState.Position))
+                                Mouse.SetCursor(MouseCursor.Arrow);
                             if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
                             {
                                 if (sunRect.Contains(mouseState.Position))
@@ -304,6 +310,7 @@ namespace EscapeRoom
                             }
                             break;
                         case 1: // sun poster
+                            Mouse.SetCursor(MouseCursor.Arrow);
                             BackButton();
                             backSun = BackToggle(maxPosterRect, backSun);
                             if (lights && !backSun && !sunDisappear)
@@ -317,6 +324,7 @@ namespace EscapeRoom
                             }
                             break;
                         case 2: // today poster
+                            Mouse.SetCursor(MouseCursor.Arrow);
                             BackButton();
                             backToday = BackToggle(maxPosterRect, backToday);
                             if (lights && !backToday)
@@ -328,6 +336,7 @@ namespace EscapeRoom
                             }
                             break;
                         case 3: // alert poster
+                            Mouse.SetCursor(MouseCursor.Arrow);
                             BackButton();
                             backAlert = BackToggle(maxPosterRect, backAlert);
                             if (!lights && !backAlert && !warningClick)
@@ -346,6 +355,7 @@ namespace EscapeRoom
                             }
                             break;
                         case 4: // birthday poster
+                            Mouse.SetCursor(MouseCursor.Arrow);
                             BackButton();
                             backBday = BackToggle(maxPosterRect, backBday);
                             break;
@@ -518,6 +528,12 @@ namespace EscapeRoom
                 if (backBtn.Contains(mouseState.Position))
                     puzzle = 0;
             }
+        }
+
+        public void SetMouseCursor(Rectangle posterRect)
+        {
+            if (posterRect.Contains(mouseState.Position))
+                Mouse.SetCursor(MouseCursor.Hand);
         }
 
         public void LightsToggle(bool toggle, Texture2D lightsFront, Texture2D lightsBack, Texture2D noLightsFront, Texture2D noLightsBack, Rectangle posterRect)
