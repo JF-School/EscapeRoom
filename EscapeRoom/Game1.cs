@@ -93,7 +93,7 @@ namespace EscapeRoom
             _graphics.PreferredBackBufferWidth = window.Width;
             _graphics.ApplyChanges();
 
-            screen = Screen.ClassicPuzzles;
+            screen = Screen.CipherPuzzles;
             puzzle = 0; // zero puzzle = original window
             generator = new Random();
 
@@ -133,7 +133,6 @@ namespace EscapeRoom
             solution1 = new int[10, 10];
             solution2 = new int[10, 10];
             solution3 = new int[10, 10];
-            cellGrid.DebugSolution();
             randomSolution = generator.Next(1, 4);
             switch (randomSolution)
             {
@@ -150,6 +149,7 @@ namespace EscapeRoom
                     cellGrid.Solution = solution3;
                     break;
             }
+            cellGrid.DebugSolution();
 
             // boolean variables to decide if something is complete
             loDone = false; // lights out
@@ -560,57 +560,19 @@ namespace EscapeRoom
                 {
                     solution1[x, y] = 0;
                 }
-            // [row, column] (STARTS AT 0)
-            //solution1[0, 0] = 1;
-            //solution1[0, 1] = 1;
-            //solution1[0, 2] = 1;
-            //solution1[0, 3] = 1;
-            //solution1[0, 5] = 1;
-            //solution1[0, 6] = 1;
-            //solution1[0, 7] = 1;
-            //solution1[0, 9] = 1;
-            //solution1[1, 0] = 1;
-            //solution1[1, 1] = 1;
-            //solution1[1, 2] = 1;
-            //solution1[1, 3] = 1;
-            //solution1[1, 4] = 1;
-            //solution1[1, 5] = 1;
-            //solution1[1, 6] = 1;
-            //solution1[1, 7] = 1;
-            //solution1[1, 9] = 1;
-            //solution1[2, 0] = 1;
-            //solution1[2, 1] = 1;
-            //solution1[2, 2] = 1;
-            //solution1[2, 5] = 1;
-            //solution1[2, 6] = 1;
-            //solution1[2, 7] = 1;
-            //solution1[2, 9] = 1;
-            //solution1[3, 0] = 1;
-            //solution1[3, 1] = 1;
-            //solution1[3, 9] = 1;
-            //solution1[4, 0] = 1;
-            //solution1[4, 9] = 1;
-            //solution1[5, 4] = 1;
-            //solution1[5, 6] = 1;
-            //solution1[5, 8] = 1;
-            //solution1[5, 9] = 1;
-            //solution1[6, 2] = 1;
-            //solution1[6, 4] = 1;
-            //solution1[6, 6] = 1;
-            //solution1[6, 7] = 1;
-            //solution1[6, 8] = 1;
-            //solution1[6, 9] = 1;
-            //solution1[7, 6] = 1;
-            //solution1[7, 7] = 1;
-            //solution1[7, 8] = 1;
-            //solution1[7, 9] = 1;
-            //solution1[8, 6] = 1;
-            //solution1[8, 7] = 1;
-            //solution1[8, 8] = 1;
-            //solution1[8, 9] = 1;
-            //solution1[9, 5] = 1;
-            //solution1[9, 6] = 1;
-            //solution1[9, 7] = 1;
+            // [column, row] (STARTS AT 0)
+            solution1[0, 0] = 1; solution1[0, 1] = 1; solution1[0, 2] = 1; solution1[0, 3] = 1;
+            solution1[1, 1] = 1; solution1[1, 2] = 1; solution1[1, 3] = 1;
+            solution1[2, 2] = 1;
+            solution1[3, 0] = 1; solution1[3, 3] = 1; solution1[3, 4] = 1; solution1[3, 5] = 1; solution1[3, 8] = 1; solution1[3, 9] = 1;
+            solution1[4, 0] = 1; solution1[4, 1] = 1; solution1[4, 2] = 1; solution1[4, 4] = 1; solution1[4, 5] = 1; solution1[4, 6] = 1; solution1[4, 7] = 1; solution1[4, 8] = 1;
+            solution1[5, 0] = 1; solution1[5, 1] = 1; solution1[5, 2] = 1; solution1[5, 4] = 1; solution1[5, 5] = 1; solution1[5, 6] = 1; solution1[5, 7] = 1; solution1[5, 8] = 1; solution1[5, 9] = 1;
+            solution1[6, 0] = 1; solution1[6, 1] = 1; solution1[6, 2] = 1; solution1[6, 4] = 1; solution1[6, 6] = 1; solution1[6, 7] = 1; solution1[6, 8] = 1; solution1[6, 9] = 1;
+            solution1[7, 0] = 1; solution1[7, 1] = 1; solution1[7, 9] = 1;
+            solution1[8, 0] = 1; solution1[8, 1] = 1; solution1[8, 2] = 1; solution1[8, 9] = 1;
+            solution1[9, 0] = 1; solution1[9, 1] = 1; solution1[9, 5] = 1; solution1[9, 7] = 1;
+
+            
         }
 
         public void NonogramSolution2()
@@ -620,32 +582,37 @@ namespace EscapeRoom
                 {
                     solution2[x, y] = 0;
                 }
-            // [row, column] (STARTS AT 0)
-            solution2[0, 0] = 1;
-            solution2[0, 9] = 1;
-            solution2[1, 1] = 1;
-            solution2[1, 8] = 1;
-            solution2[2, 2] = 1;
-            solution2[2, 7] = 1;
-            solution2[3, 3] = 1;
-            solution2[3, 6] = 1;
-            solution2[4, 4] = 1;
-            solution2[4, 5] = 1;
-            solution2[5, 4] = 1;
-            solution2[5, 5] = 1;
-            solution2[6, 3] = 1;
-            solution2[6, 6] = 1;
-            solution2[7, 2] = 1;
-            solution2[7, 7] = 1;
-            solution2[8, 1] = 1;
-            solution2[8, 8] = 1;
-            solution2[9, 0] = 1;
-            solution2[9, 9] = 1;
+            // [column, row] (STARTS AT 0)
+            solution2[0, 3] = 1; solution2[0, 4] = 1; solution2[0, 5] = 1; solution2[0, 6] = 1; solution2[0, 7] = 1; solution2[0, 8] = 1; solution2[0, 9] = 1;
+            solution2[1, 3] = 1; solution2[1, 4] = 1; solution2[1, 5] = 1; solution2[1, 6] = 1; solution2[1, 7] = 1; solution2[1, 8] = 1; solution2[1, 9] = 1;
+            solution2[2, 2] = 1; solution2[2, 7] = 1;
+            solution2[3, 2] = 1;
+            solution2[4, 1] = 1; solution2[4, 2] = 1; solution2[4, 7] = 1; solution2[4, 9] = 1;
+            solution2[5, 0] = 1; solution2[5, 1] = 1; solution2[5, 2] = 1; solution2[5, 7] = 1; solution2[5, 9] = 1;
+            solution2[6, 0] = 1; solution2[6, 1] = 1; solution2[6, 5] = 1; solution2[6, 6] = 1; solution2[6, 7] = 1; solution2[6, 8] = 1; solution2[6, 9] = 1;
+            solution2[7, 0] = 1; solution2[7, 8] = 1; solution2[7, 9] = 1;
+            solution2[8, 0] = 1; solution2[8, 1] = 1; solution2[8, 4] = 1; solution2[8, 5] = 1; solution2[8, 8] = 1; solution2[8, 9] = 1;
+            solution2[9, 0] = 1; solution2[9, 1] = 1; solution2[9, 2] = 1; solution2[9, 3] = 1; solution2[9, 4] = 1; solution2[9, 6] = 1; solution2[9, 8] = 1; solution2[9, 9] = 1;
         }
 
         public void NonogramSolution3()
         {
-
+            for (int y = 0; y < 10; y++)
+                for (int x = 0; x < 10; x++)
+                {
+                    solution3[x, y] = 0;
+                }
+            // [column, row] (STARTS AT 0)
+            solution3[0, 0] = 1; solution3[0, 1] = 1; solution3[0, 5] = 1; solution3[0, 9] = 1;
+            solution3[1, 0] = 1; solution3[1, 1] = 1; solution3[1, 2] = 1;
+            solution3[2, 0] = 1; solution3[2, 1] = 1; solution3[2, 7] = 1; solution3[2, 8] = 1;
+            solution3[3, 0] = 1; solution3[3, 1] = 1; solution3[3, 8] = 1; solution3[3, 9] = 1;
+            solution3[4, 0] = 1; solution3[4, 7] = 1; solution3[4, 8] = 1; solution3[4, 9] = 1;
+            solution3[5, 3] = 1; solution3[5, 4] = 1; solution3[5, 5] = 1; solution3[5, 7] = 1; solution3[5, 8] = 1; solution3[5, 9] = 1;
+            solution3[6, 0] = 1; solution3[6, 2] = 1; solution3[6, 3] = 1; solution3[6, 4] = 1; solution3[6, 5] = 1; solution3[6, 6] = 1; solution3[6, 7] = 1; solution3[6, 8] = 1; solution3[6, 9] = 1;
+            solution3[7, 0] = 1; solution3[7, 1] = 1; solution3[7, 2] = 1; solution3[7, 7] = 1; solution3[7, 8] = 1; solution3[7, 9] = 1;
+            solution3[8, 0] = 1; solution3[8, 1] = 1; solution3[8, 7] = 1; solution3[8, 8] = 1; solution3[8, 9] = 1;
+            solution3[9, 0] = 1; solution3[9, 1] = 1; solution3[9, 7] = 1; solution3[9, 8] = 1; solution3[9, 9] = 1;
         }
 
     }
