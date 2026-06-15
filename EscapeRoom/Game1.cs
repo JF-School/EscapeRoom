@@ -30,7 +30,7 @@ namespace EscapeRoom
 
         Screen screen;
 
-        // FIRST ROOM
+        // CLASSIC PUZZLES ROOM
         Texture2D rectTexture, xTexture, backTexture, tableTexture;
         Texture2D solOneTexture, solTwoTexture, solThreeTexture;
         Texture2D phTexture; // placeholder texture, remove after textures are finalized.
@@ -55,16 +55,22 @@ namespace EscapeRoom
         Texture2D moonPosterBack, yesterdayPosterBack, barcodePosterBack, canadaPosterBack;
 
         // SPECIAL POSTERS
-        bool sunDisappear, needle, warningClick, tomorrowToggle;
-        Texture2D tomorrowPosterFront, chestPosterFront, scannerPosterFront;
-        Texture2D tomorrowPosterBack, chestPosterBack, scannerPosterBack;
-        Rectangle chestToggleRect, warningSignRect;
+        bool sunDisappear, warningClick, tomorrowToggle, buttonClicked;
+        Texture2D tomorrowPosterFront, chestPosterFront, scannerPosterFront, lockPosterFront;
+        Texture2D tomorrowPosterBack, chestPosterBack, scannerPosterBack, lockPosterBack;
+        Texture2D scannerBtnTexture, cursorTexture;
+        Rectangle chestToggleRect, warningSignRect, scannerBtn, cursorRect;
         int clicks;
 
         // ITEMS
         bool scannerEquipped;
         Texture2D scannerTexture;
         Rectangle scannerRect;
+
+        // BARCODES
+        Rectangle sunBarcode, todayBarcode, alertBarcode, bdayBarcode; // day posters
+        Rectangle moonBarcode, yesterdayBarcode, barcodeBarcode, canadaBarcode; // night posters
+        Rectangle chestBarcode, tomorrowBarcode, scannerBarcode; // special posters
 
         LightGrid lightGrid;
         CellGrid cellGrid;
@@ -114,10 +120,12 @@ namespace EscapeRoom
             maxPosterRect = new Rectangle(213, 0, 375, 500);
             chestToggleRect = new Rectangle(213, 193, 171, 171);
             warningSignRect = new Rectangle(270, 397, 51, 46);
+            scannerBtn = new Rectangle(244, 44, 300, 300);
+            cursorRect = new Rectangle(400, 212, 100, 129);
 
             backSun = false; backToday = false; backAlert = false; backBday = false;
             lights = true;
-            sunDisappear = false; needle = false; warningClick = false; tomorrowToggle = false;
+            sunDisappear = false; buttonClicked = false; warningClick = false; tomorrowToggle = false;
             clicks = 0;
 
             scannerEquipped = false;
@@ -207,9 +215,15 @@ namespace EscapeRoom
             chestPosterBack = Content.Load<Texture2D>("Posters/ChestBack");
             scannerPosterFront = Content.Load<Texture2D>("Posters/ScannerFront");
             scannerPosterBack = Content.Load<Texture2D>("Posters/ScannerBack");
+            lockPosterFront = Content.Load<Texture2D>("Posters/LockFront");
+            lockPosterBack = Content.Load<Texture2D>("Posters/LockBack");
 
             // items
             scannerTexture = Content.Load<Texture2D>("Images/ScannerItem");
+
+            // random stuff
+            scannerBtnTexture = Content.Load<Texture2D>("Images/button");
+            cursorTexture = Content.Load<Texture2D>("Images/cursor");
 
         }
 
@@ -353,6 +367,14 @@ namespace EscapeRoom
                                         clicks = 0;
                                 }
                             }
+                            if (backAlert && backBday && warningClick && !lights)
+                            {
+                                if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                                {
+                                    if (scannerBtn.Contains(mouseState.Position))
+                                        buttonClicked = true;
+                                }
+                            }
                             break;
                         case 4: // birthday poster
                             Mouse.SetCursor(MouseCursor.Arrow);
@@ -451,7 +473,10 @@ namespace EscapeRoom
                                 else
                                     DrawPoster(backToday, tomorrowPosterFront, tomorrowPosterBack, todayRect);
                                 DrawPoster(backAlert, alertPosterFront, alertPosterBack, alertRect);
-                                DrawPoster(backBday, bdayPosterFront, bdayPosterBack, bdayRect);
+                                if (!buttonClicked)
+                                    DrawPoster(backBday, bdayPosterFront, bdayPosterBack, bdayRect);
+                                else
+                                    DrawPoster(backBday, lockPosterFront, lockPosterBack, bdayRect);
                             }
                             else
                             {
@@ -486,11 +511,21 @@ namespace EscapeRoom
                             if (!warningClick)
                                 LightsToggle(backAlert, alertPosterFront, alertPosterBack, barcodePosterFront, barcodePosterBack, maxPosterRect);
                             else
+                            {
                                 LightsToggle(backAlert, alertPosterFront, alertPosterBack, scannerPosterFront, scannerPosterBack, maxPosterRect);
+                                if (backAlert && !buttonClicked)
+                                {
+                                    _spriteBatch.Draw(scannerBtnTexture, scannerBtn, Color.White);
+                                    _spriteBatch.Draw(cursorTexture, cursorRect, Color.White);
+                                }
+                            }
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                         case 4: // bday poster
-                            LightsToggle(backBday, bdayPosterFront, bdayPosterBack, canadaPosterFront, canadaPosterBack, maxPosterRect);
+                            if (!buttonClicked)
+                                LightsToggle(backBday, bdayPosterFront, bdayPosterBack, canadaPosterFront, canadaPosterBack, maxPosterRect);
+                            else
+                                LightsToggle(backBday, lockPosterFront, lockPosterBack, canadaPosterFront, canadaPosterBack, maxPosterRect);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                     }
