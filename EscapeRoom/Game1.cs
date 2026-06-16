@@ -59,7 +59,8 @@ namespace EscapeRoom
         Texture2D tomorrowPosterFront, chestPosterFront, scannerPosterFront, lockPosterFront;
         Texture2D tomorrowPosterBack, chestPosterBack, scannerPosterBack, lockPosterBack;
         Texture2D scannerBtnTexture, cursorTexture;
-        Rectangle chestToggleRect, warningSignRect, scannerBtn, cursorRect;
+        Rectangle chestToggleRect, warningSignRect, scannerBtn, cursorRect, lockBtn;
+        Rectangle scannerBtnSmall, cursorSmallRect;
         int clicks;
 
         // ITEMS
@@ -71,6 +72,16 @@ namespace EscapeRoom
         Rectangle sunBarcode, todayBarcode, alertBarcode, bdayBarcode; // day posters
         Rectangle moonBarcode, yesterdayBarcode, barcodeBarcode, canadaBarcode; // night posters
         Rectangle chestBarcode, tomorrowBarcode, scannerBarcode; // special posters
+
+        // LOCK SCREEN
+        Rectangle plusBtn1, plusBtn2, plusBtn3, plusBtn4;
+        Rectangle subBtn1, subBtn2, subBtn3, subBtn4;
+        Rectangle counterRect1, counterRect2, counterRect3, counterRect4;
+        Texture2D plusTexture, subTexture, counterTexture;
+        SpriteFont numFont;
+        Vector2 fontLoca1, fontLoca2, fontLoca3, fontLoca4;
+        int num1, num2, num3, num4;
+        Color hoverColor;
 
         LightGrid lightGrid;
         CellGrid cellGrid;
@@ -121,7 +132,10 @@ namespace EscapeRoom
             chestToggleRect = new Rectangle(213, 193, 171, 171);
             warningSignRect = new Rectangle(270, 397, 51, 46);
             scannerBtn = new Rectangle(244, 44, 300, 300);
+            lockBtn = new Rectangle(347, 175, 109, 188);
             cursorRect = new Rectangle(400, 212, 100, 129);
+            scannerBtnSmall = new Rectangle(430, 148, 146, 146);
+            cursorSmallRect = new Rectangle(505, 230, 49, 63);
 
             backSun = false; backToday = false; backAlert = false; backBday = false;
             lights = true;
@@ -130,6 +144,27 @@ namespace EscapeRoom
 
             scannerEquipped = false;
             scannerRect = new Rectangle(mouseState.X, mouseState.Y, 45, 45);
+
+            // lock SCREEN
+            plusBtn1 = new Rectangle(68, 88, 80, 80);
+            plusBtn2 = new Rectangle(263, 88, 80, 80);
+            plusBtn3 = new Rectangle(457, 88, 80, 80);
+            plusBtn4 = new Rectangle(652, 88, 80, 80);
+            subBtn1 = new Rectangle(68, 333, 80, 80);
+            subBtn2 = new Rectangle(263, 333, 80, 80);
+            subBtn3 = new Rectangle(457, 333, 80, 80);
+            subBtn4 = new Rectangle(652, 333, 80, 80);
+            counterRect1 = new Rectangle(46, 188, 125, 125);
+            counterRect2 = new Rectangle(240, 188, 125, 125);
+            counterRect3 = new Rectangle(435, 188, 125, 125);
+            counterRect4 = new Rectangle(630, 188, 125, 125);
+
+            fontLoca1 = new Vector2(74, 192);
+            fontLoca2 = new Vector2(266, 192);
+            fontLoca3 = new Vector2(466, 192);
+            fontLoca4 = new Vector2(658, 192);
+
+            num1 = 0; num2 = 0; num3 = 0; num4 = 0;
 
 
             // TODO: Add your initialization logic here
@@ -181,6 +216,9 @@ namespace EscapeRoom
             solOneTexture = Content.Load<Texture2D>("Images/solutionOne");
             solTwoTexture = Content.Load<Texture2D>("Images/solutionTwo");
             solThreeTexture = Content.Load<Texture2D>("Images/solutionThree");
+            plusTexture = Content.Load<Texture2D>("Images/plusButton");
+            subTexture = Content.Load<Texture2D>("Images/minusButton");
+            counterTexture = Content.Load<Texture2D>("Images/blankCounter");
 
             // placeholder textures
             phTexture = Content.Load<Texture2D>("Placeholders/escaperoomplaceholder");
@@ -224,6 +262,9 @@ namespace EscapeRoom
             // random stuff
             scannerBtnTexture = Content.Load<Texture2D>("Images/button");
             cursorTexture = Content.Load<Texture2D>("Images/cursor");
+
+            // text
+            numFont = Content.Load<SpriteFont>("Fonts/numFont");
 
         }
 
@@ -291,12 +332,8 @@ namespace EscapeRoom
                     switch (puzzle)
                     {
                         case 0:
-                            SetMouseCursor(sunRect);
-                            SetMouseCursor(todayRect);
-                            SetMouseCursor(alertRect);
-                            SetMouseCursor(bdayRect);
-                            if (!sunRect.Contains(mouseState.Position) && !todayRect.Contains(mouseState.Position) && !alertRect.Contains(mouseState.Position) && !bdayRect.Contains(mouseState.Position))
-                                Mouse.SetCursor(MouseCursor.Arrow);
+                            FourSetMouseCursor(sunRect, todayRect, alertRect, bdayRect);
+                            FourResetMouseCursor(sunRect, todayRect, alertRect, bdayRect);
                             if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
                             {
                                 if (sunRect.Contains(mouseState.Position))
@@ -380,6 +417,36 @@ namespace EscapeRoom
                             Mouse.SetCursor(MouseCursor.Arrow);
                             BackButton();
                             backBday = BackToggle(maxPosterRect, backBday);
+                            if (buttonClicked && !backBday && lights)
+                            {
+                                SetMouseCursor(lockBtn);
+                                if (!lockBtn.Contains(mouseState.Position))
+                                    Mouse.SetCursor(MouseCursor.Arrow);
+                                if (mouseState.LeftButton == ButtonState.Pressed && mouseState.RightButton == ButtonState.Released)
+                                {
+                                    if (lockBtn.Contains(mouseState.Position))
+                                        puzzle = 5;
+                                }
+                            }
+                            break;
+                        case 5: // lock
+                            Mouse.SetCursor(MouseCursor.Arrow);
+                            if (backBtn.Contains(mouseState.Position))
+                                puzzle = 4;
+                            FourSetMouseCursor(plusBtn1, plusBtn2, plusBtn3, plusBtn4);
+                            FourResetMouseCursor(plusBtn1, plusBtn2, plusBtn3, plusBtn4);
+                            FourSetMouseCursor(subBtn1, subBtn2, subBtn3, subBtn4);
+                            FourResetMouseCursor(subBtn1, subBtn2, subBtn3, subBtn4);
+
+                            LockAdd(plusBtn1, num1);
+                            LockAdd(plusBtn2, num2);
+                            LockAdd(plusBtn3, num3);
+                            LockAdd(plusBtn4, num4);
+                            LockSubtract(subBtn1, num1);
+                            LockSubtract(subBtn2, num2);
+                            LockSubtract(subBtn3, num3);
+                            LockSubtract(subBtn4, num4);
+
                             break;
                     }
                     break;
@@ -489,7 +556,14 @@ namespace EscapeRoom
                                 if (!warningClick)
                                     DrawPoster(backAlert, barcodePosterFront, barcodePosterBack, alertRect);
                                 else
+                                {
                                     DrawPoster(backAlert, scannerPosterFront, scannerPosterBack, alertRect);
+                                    if (!buttonClicked && backAlert)
+                                    {
+                                        _spriteBatch.Draw(scannerBtnTexture, scannerBtnSmall, Color.White);
+                                        _spriteBatch.Draw(cursorTexture, cursorSmallRect, Color.White);
+                                    }
+                                }
                                 DrawPoster(backBday, canadaPosterFront, canadaPosterBack, bdayRect);
                             }
                             break;
@@ -526,6 +600,26 @@ namespace EscapeRoom
                                 LightsToggle(backBday, bdayPosterFront, bdayPosterBack, canadaPosterFront, canadaPosterBack, maxPosterRect);
                             else
                                 LightsToggle(backBday, lockPosterFront, lockPosterBack, canadaPosterFront, canadaPosterBack, maxPosterRect);
+                            _spriteBatch.Draw(backTexture, backBtn, Color.White);
+                            break;
+                        case 5: // lock
+                            _spriteBatch.Draw(rectTexture, window, Color.DimGray);
+                            _spriteBatch.Draw(plusTexture, plusBtn1, Color.White);
+                            _spriteBatch.Draw(plusTexture, plusBtn2, Color.White);
+                            _spriteBatch.Draw(plusTexture, plusBtn3, Color.White);
+                            _spriteBatch.Draw(plusTexture, plusBtn4, Color.White);
+                            _spriteBatch.Draw(counterTexture, counterRect1, Color.White);
+                            _spriteBatch.Draw(counterTexture, counterRect2, Color.White);
+                            _spriteBatch.Draw(counterTexture, counterRect3, Color.White);
+                            _spriteBatch.Draw(counterTexture, counterRect4, Color.White);
+                            _spriteBatch.Draw(subTexture, subBtn1, Color.White);
+                            _spriteBatch.Draw(subTexture, subBtn2, Color.White);
+                            _spriteBatch.Draw(subTexture, subBtn3, Color.White);
+                            _spriteBatch.Draw(subTexture, subBtn4, Color.White);
+                            _spriteBatch.DrawString(numFont, $"{num1}", fontLoca1, Color.Black);
+                            _spriteBatch.DrawString(numFont, $"{num2}", fontLoca2, Color.Black);
+                            _spriteBatch.DrawString(numFont, $"{num3}", fontLoca3, Color.Black);
+                            _spriteBatch.DrawString(numFont, $"{num4}", fontLoca4, Color.Black);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                     }
@@ -565,10 +659,50 @@ namespace EscapeRoom
             }
         }
 
-        public void SetMouseCursor(Rectangle posterRect)
+        public void SetMouseCursor(Rectangle rect)
         {
-            if (posterRect.Contains(mouseState.Position))
+            if (rect.Contains(mouseState.Position))
                 Mouse.SetCursor(MouseCursor.Hand);
+        }
+
+        public void FourSetMouseCursor(Rectangle rect1, Rectangle rect2, Rectangle rect3, Rectangle rect4)
+        {
+            if (rect1.Contains(mouseState.Position) || rect2.Contains(mouseState.Position) || rect3.Contains(mouseState.Position) || rect4.Contains(mouseState.Position))
+                Mouse.SetCursor(MouseCursor.Hand);
+        }
+
+        public void FourResetMouseCursor(Rectangle rect1, Rectangle rect2, Rectangle rect3, Rectangle rect4)
+        {
+            if (!rect1.Contains(mouseState.Position) && !rect2.Contains(mouseState.Position) && !rect3.Contains(mouseState.Position) && !rect4.Contains(mouseState.Position))
+                Mouse.SetCursor(MouseCursor.Arrow);
+        }
+
+        public void LockAdd(Rectangle plusBtn, int num)
+        {
+            if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+            {
+                if (plusBtn.Contains(mouseState.Position))
+                {
+                    if (num > 9)
+                        num += 1;
+                    if (num == 9)
+                        num = 0;
+                }
+            }
+        }
+
+        public void LockSubtract(Rectangle subBtn, int num)
+        {
+            if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+            {
+                if (subBtn.Contains(mouseState.Position))
+                {
+                    if (num > 0 && num <= 9)
+                        num -= 1;
+                    if (num == 0)
+                        num = 9;
+                }
+            }
         }
 
         public void LightsToggle(bool toggle, Texture2D lightsFront, Texture2D lightsBack, Texture2D noLightsFront, Texture2D noLightsBack, Rectangle posterRect)
