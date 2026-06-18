@@ -47,8 +47,11 @@ namespace EscapeRoom
         Texture2D sunPosterFront, todayPosterFront, alertPosterFront, bdayPosterFront; // front textures
         Texture2D sunPosterBack, todayPosterBack, alertPosterBack, bdayPosterBack; // back textures
         Texture2D wallpaperTexture; // wallpaper background 
+        Texture2D arrowTexture;
         Rectangle sunRect, todayRect, alertRect, bdayRect, maxPosterRect;
+        Rectangle arrowRect;
         bool backSun, backToday, backAlert, backBday; // false = front, true = back;
+        bool lightsToggle; // true = ability to turn lights on/off. false = no ability to do so;
 
         // LIGHTS OFF
         Texture2D moonPosterFront, yesterdayPosterFront, barcodePosterFront, canadaPosterFront;
@@ -58,9 +61,10 @@ namespace EscapeRoom
         bool sunDisappear, warningClick, tomorrowToggle, buttonClicked, lockPoster;
         Texture2D tomorrowPosterFront, chestPosterFront, scannerPosterFront, lockPosterFront;
         Texture2D tomorrowPosterBack, chestPosterBack, scannerPosterBack, lockPosterBack;
-        Texture2D scannerBtnTexture, cursorTexture;
-        Rectangle chestToggleRect, warningSignRect, scannerBtn, cursorRect, lockBtn;
-        Rectangle scannerBtnSmall, cursorSmallRect;
+        Texture2D scannerBtnTexture, cursorTexture, screwdriverTexture;
+        Rectangle chestToggleRect, warningSignRect, scannerBtn, cursorRect, lockBtn, chestBtn;
+        Rectangle scannerBtnSmall, cursorSmallRect, screwdriverRect;
+        bool showScrewdriver, screwdriver;
         int clicks;
 
         // ITEMS
@@ -115,34 +119,40 @@ namespace EscapeRoom
             screen = Screen.CipherPuzzles;
             puzzle = 0; // zero puzzle = original window
             generator = new Random();
+            lightsToggle = true;
 
-            // first screen
+            // Classic Puzzles Room
             lightsBack = new Rectangle(225, 70, 300, 300);
             backBtn = new Rectangle(10, 10, 50, 50);
             lightsBtn = new Rectangle(450, 0, 100, 100);
             nonogramBtn = new Rectangle(25, 215, 100, 100);
             fifteenBtn = new Rectangle(610, 240, 100, 100);
 
-            // second screen
+            // Caesar Cipher Puzzles Room
             // NORMAL VALUES
             sunRect = new Rectangle(10, 122, 200, 256);
             todayRect = new Rectangle(212, 122, 192, 256);
             alertRect = new Rectangle(407, 122, 190, 256);
             bdayRect = new Rectangle(599, 122, 190, 256);
 
+            // other Rectangles
             maxPosterRect = new Rectangle(213, 0, 375, 500);
             chestToggleRect = new Rectangle(213, 193, 171, 171);
             warningSignRect = new Rectangle(270, 397, 51, 46);
             scannerBtn = new Rectangle(244, 44, 300, 300);
             lockBtn = new Rectangle(347, 175, 109, 188);
+            chestBtn = new Rectangle(227, 317, 178, 152);
+            screwdriverRect = new Rectangle(266, 342, 101, 101);
             cursorRect = new Rectangle(400, 212, 100, 129);
             scannerBtnSmall = new Rectangle(430, 148, 146, 146);
             cursorSmallRect = new Rectangle(505, 230, 49, 63);
+            arrowRect = new Rectangle(379, 3, 43, 43);
 
             backSun = false; backToday = false; backAlert = false; backBday = false;
-            lights = true; 
+            lights = true; // lightsToggle = false;
             sunDisappear = false; buttonClicked = false; warningClick = false; tomorrowToggle = false;
             lockPoster = false;
+            screwdriver = false; showScrewdriver = false;
             clicks = 0;
 
             scannerEquipped = false;
@@ -226,6 +236,8 @@ namespace EscapeRoom
             plusTexture = Content.Load<Texture2D>("Images/plusButton");
             subTexture = Content.Load<Texture2D>("Images/minusButton");
             counterTexture = Content.Load<Texture2D>("Images/blankCounter");
+            arrowTexture = Content.Load<Texture2D>("Images/arrow");
+            screwdriverTexture = Content.Load<Texture2D>("Images/screwdriver");
 
             // placeholder textures
             phTexture = Content.Load<Texture2D>("Placeholders/escaperoomplaceholder");
@@ -306,11 +318,11 @@ namespace EscapeRoom
                             }
                             break;
                         case 1: // lights out
-                            if (!loDone)
-                                if (lightGrid.Update(mouseState, prevMouseState))
-                                    loDone = true;
-                            if (loDone)
-                                BackButton();
+                            //if (!loDone)
+                            //    if (lightGrid.Update(mouseState, prevMouseState))
+                            //        loDone = true;
+                            //if (loDone)
+                            //    BackButton();
                             break;
                         case 2: // nonogram
                             if (keyboardState.IsKeyDown(Keys.LeftAlt) && prevKeyboardState.IsKeyUp(Keys.LeftAlt))
@@ -340,19 +352,21 @@ namespace EscapeRoom
                     switch (puzzle)
                     {
                         case 0:
-                            FourCursorChange(sunRect, todayRect, alertRect, bdayRect);
+                            CursorChange(sunRect, todayRect, alertRect, bdayRect);
                             if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
                             {
-                                if (sunRect.Contains(mouseState.Position))
+                                if (arrowRect.Contains(mouseState.Position))
                                     puzzle = 1;
-                                if (todayRect.Contains(mouseState.Position))
-                                    puzzle = 2;
-                                if (alertRect.Contains(mouseState.Position))
-                                    puzzle = 3;
-                                if (bdayRect.Contains(mouseState.Position))
-                                    puzzle = 4;
-                                if (!sunRect.Contains(mouseState.Position) && !todayRect.Contains(mouseState.Position) && !alertRect.Contains(mouseState.Position) && !bdayRect.Contains(mouseState.Position))
+                                if (!sunRect.Contains(mouseState.Position) && !todayRect.Contains(mouseState.Position) && !alertRect.Contains(mouseState.Position) && !bdayRect.Contains(mouseState.Position) && lightsToggle)
                                     lights = !lights;
+                                if (sunRect.Contains(mouseState.Position))
+                                    puzzle = 3;
+                                if (todayRect.Contains(mouseState.Position))
+                                    puzzle = 4;
+                                if (alertRect.Contains(mouseState.Position))
+                                    puzzle = 5;
+                                if (bdayRect.Contains(mouseState.Position))
+                                    puzzle = 6;
                             }
                             if (mouseState.RightButton == ButtonState.Pressed && prevMouseState.RightButton == ButtonState.Released)
                             {
@@ -367,7 +381,19 @@ namespace EscapeRoom
 
                             }
                             break;
-                        case 1: // sun poster
+                        case 1: // lights out
+                            if (!lightsToggle)
+                                if (lightGrid.Update(mouseState, prevMouseState))
+                                {
+                                    lightsToggle = true;
+                                    lights = false;
+                                }
+                            if (lightsToggle)
+                                BackButton();
+                            break;
+                        case 2: // nonogram
+                            break;
+                        case 3: // sun poster
                             ResetMouseCursor(sunRect);
                             BackButton();
                             backSun = BackToggle(maxPosterRect, backSun);
@@ -380,8 +406,21 @@ namespace EscapeRoom
                                         sunDisappear = true;
                                 }
                             }
+                            if (sunDisappear && keyCollected && !screwdriver)
+                            {
+                                if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                                {
+                                    if (chestBtn.Contains(mouseState.Position))
+                                        showScrewdriver = true;
+                                    if (screwdriverRect.Contains(mouseState.Position) && showScrewdriver)
+                                    {
+                                        showScrewdriver = false;
+                                        screwdriver = true;
+                                    }
+                                }
+                            }
                             break;
-                        case 2: // today poster
+                        case 4: // today poster
                             Mouse.SetCursor(MouseCursor.Arrow);
                             BackButton();
                             backToday = BackToggle(maxPosterRect, backToday);
@@ -393,7 +432,7 @@ namespace EscapeRoom
                                 }
                             }
                             break;
-                        case 3: // alert poster
+                        case 5: // alert poster
                             Mouse.SetCursor(MouseCursor.Arrow);
                             BackButton();
                             backAlert = BackToggle(maxPosterRect, backAlert);
@@ -423,7 +462,7 @@ namespace EscapeRoom
                                 }
                             }
                             break;
-                        case 4: // birthday poster
+                        case 6: // birthday poster
                             Mouse.SetCursor(MouseCursor.Arrow);
                             BackButton();
                             backBday = BackToggle(maxPosterRect, backBday);
@@ -434,11 +473,11 @@ namespace EscapeRoom
                                 if (mouseState.LeftButton == ButtonState.Pressed && mouseState.RightButton == ButtonState.Released)
                                 {
                                     if (lockBtn.Contains(mouseState.Position))
-                                        puzzle = 5;
+                                        puzzle = 7;
                                 }
                             }
                             break;
-                        case 5: // lock
+                        case 7: // lock
                             Mouse.SetCursor(MouseCursor.Arrow);
                             BackButton(4);
                             if (!code)
@@ -464,11 +503,6 @@ namespace EscapeRoom
                                     }
                                 }
                             }
-                            
-
-
-
-
                             break;
                     }
                     break;
@@ -553,6 +587,8 @@ namespace EscapeRoom
                             if (lights)
                             {
                                 _spriteBatch.Draw(rectTexture, window, Color.LightSkyBlue);
+                                if (!lightsToggle)
+                                    _spriteBatch.Draw(arrowTexture, arrowRect, Color.White);
                                 if (!sunDisappear)
                                     DrawPoster(backSun, sunPosterFront, sunPosterBack, sunRect);
                                 else
@@ -589,21 +625,34 @@ namespace EscapeRoom
                                 DrawPoster(backBday, canadaPosterFront, canadaPosterBack, bdayRect);
                             }
                             break;
-                        case 1: // sun poster
+                        case 1: // lights out
+                            _spriteBatch.Draw(rectTexture, window, Color.DarkGray);
+                            _spriteBatch.Draw(rectTexture, lightsBack, Color.Black);
+                            lightGrid.Draw(_spriteBatch);
+                            if (lightsToggle)
+                                _spriteBatch.Draw(backTexture, backBtn, Color.White);
+                            break;
+                        case 2: // nonogram
+                            break;
+                        case 3: // sun poster
                             if (!sunDisappear)
                                 LightsToggle(backSun, sunPosterFront, sunPosterBack, moonPosterFront, moonPosterBack, maxPosterRect);
                             else
+                            {
                                 LightsToggle(backSun, chestPosterFront, chestPosterBack, chestPosterFront, chestPosterBack, maxPosterRect);
+                                if (showScrewdriver)
+                                    _spriteBatch.Draw(screwdriverTexture, screwdriverRect, Color.White);
+                            }
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
-                        case 2: // today poster
+                        case 4: // today poster
                             if (!tomorrowToggle)
                                 LightsToggle(backToday, todayPosterFront, todayPosterBack, yesterdayPosterFront, yesterdayPosterBack, maxPosterRect);
                             else
                                 LightsToggle(backToday, tomorrowPosterFront, tomorrowPosterBack, yesterdayPosterFront, yesterdayPosterBack, maxPosterRect);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
-                        case 3: // alert poster
+                        case 5: // alert poster
                             if (!warningClick)
                                 LightsToggle(backAlert, alertPosterFront, alertPosterBack, barcodePosterFront, barcodePosterBack, maxPosterRect);
                             else
@@ -617,14 +666,14 @@ namespace EscapeRoom
                             }
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
-                        case 4: // bday poster
+                        case 6: // bday poster
                             if (!lockPoster)
                                 LightsToggle(backBday, bdayPosterFront, bdayPosterBack, canadaPosterFront, canadaPosterBack, maxPosterRect);
                             else
                                 LightsToggle(backBday, lockPosterFront, lockPosterBack, canadaPosterFront, canadaPosterBack, maxPosterRect);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
-                        case 5: // lock
+                        case 7: // lock
                             _spriteBatch.Draw(rectTexture, window, Color.DimGray);
                             _spriteBatch.Draw(plusTexture, plusBtn1, Color.White);
                             _spriteBatch.Draw(plusTexture, plusBtn2, Color.White);
@@ -645,6 +694,8 @@ namespace EscapeRoom
                             if (code && !keyCollected)
                                 _spriteBatch.Draw(keyTexture, keyRect, Color.White);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
+                            break;
+                        case 8: // chest
                             break;
                     }
                     if (scannerEquipped)
@@ -710,22 +761,22 @@ namespace EscapeRoom
             ResetMouseCursor(rect);
         }
 
-        public void FourSetMouseCursor(Rectangle rect1, Rectangle rect2, Rectangle rect3, Rectangle rect4)
+        public void SetMouseCursor(Rectangle rect1, Rectangle rect2, Rectangle rect3, Rectangle rect4)
         {
             if (rect1.Contains(mouseState.Position) || rect2.Contains(mouseState.Position) || rect3.Contains(mouseState.Position) || rect4.Contains(mouseState.Position))
                 Mouse.SetCursor(MouseCursor.Hand);
         }
 
-        public void FourResetMouseCursor(Rectangle rect1, Rectangle rect2, Rectangle rect3, Rectangle rect4)
+        public void ResetMouseCursor(Rectangle rect1, Rectangle rect2, Rectangle rect3, Rectangle rect4)
         {
             if (!rect1.Contains(mouseState.Position) && !rect2.Contains(mouseState.Position) && !rect3.Contains(mouseState.Position) && !rect4.Contains(mouseState.Position))
                 Mouse.SetCursor(MouseCursor.Arrow);
         }
 
-        public void FourCursorChange(Rectangle rect1, Rectangle rect2, Rectangle rect3, Rectangle rect4)
+        public void CursorChange(Rectangle rect1, Rectangle rect2, Rectangle rect3, Rectangle rect4)
         {
-            FourSetMouseCursor(rect1, rect2, rect3, rect4);
-            FourResetMouseCursor(rect1, rect2, rect3, rect4);
+            SetMouseCursor(rect1, rect2, rect3, rect4);
+            ResetMouseCursor(rect1, rect2, rect3, rect4);
         }
 
         public void PlusButtons()
