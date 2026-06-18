@@ -9,9 +9,7 @@ namespace EscapeRoom
     enum Screen
     {
         Intro,
-        ClassicPuzzles,
-        CipherPuzzles,
-        FunPuzzles,
+        PosterRoom,
         Outro
     }
 
@@ -30,12 +28,10 @@ namespace EscapeRoom
 
         Screen screen;
 
-        // CLASSIC PUZZLES ROOM
-        Texture2D rectTexture, xTexture, backTexture, tableTexture;
+        // LIGHTS OUT & NONOGRAM
+        Texture2D rectTexture, xTexture, backTexture;
         Texture2D solOneTexture, solTwoTexture, solThreeTexture;
-        Texture2D phTexture; // placeholder texture, remove after textures are finalized.
-        Texture2D lightsPhTexture, nonogramPhTexture, fifteenPhTexture; // placeholder texture
-        Rectangle lightsBtn, nonogramBtn, fifteenBtn, backBtn;
+        Rectangle backBtn;
         Rectangle lightsBack;
 
         // POSTER/CIPHER ROOM
@@ -63,8 +59,9 @@ namespace EscapeRoom
         Texture2D tomorrowPosterBack, chestPosterBack, scannerPosterBack, lockPosterBack;
         Texture2D scannerBtnTexture, cursorTexture, screwdriverTexture;
         Rectangle chestToggleRect, warningSignRect, scannerBtn, cursorRect, lockBtn, chestBtn;
-        Rectangle scannerBtnSmall, cursorSmallRect, screwdriverRect;
+        Rectangle scannerBtnSmall, cursorSmallRect, screwdriverRect, tardisRect;
         bool showScrewdriver, screwdriver;
+        bool tardisActivated; // true = you can escape! false = you can't escape.
         int clicks;
 
         // ITEMS
@@ -116,17 +113,15 @@ namespace EscapeRoom
             _graphics.PreferredBackBufferWidth = window.Width;
             _graphics.ApplyChanges();
 
-            screen = Screen.CipherPuzzles;
+            screen = Screen.PosterRoom;
             puzzle = 0; // zero puzzle = original window
             generator = new Random();
             lightsToggle = true;
+            tardisActivated = false;
 
-            // Classic Puzzles Room
+            // LIGHTS OUT
             lightsBack = new Rectangle(225, 70, 300, 300);
             backBtn = new Rectangle(10, 10, 50, 50);
-            lightsBtn = new Rectangle(450, 0, 100, 100);
-            nonogramBtn = new Rectangle(25, 215, 100, 100);
-            fifteenBtn = new Rectangle(610, 240, 100, 100);
 
             // Caesar Cipher Puzzles Room
             // NORMAL VALUES
@@ -143,6 +138,7 @@ namespace EscapeRoom
             lockBtn = new Rectangle(347, 175, 109, 188);
             chestBtn = new Rectangle(227, 317, 178, 152);
             screwdriverRect = new Rectangle(350, 199, 101, 101);
+            tardisRect = new Rectangle(321, 214, 160, 251);
             cursorRect = new Rectangle(400, 212, 100, 129);
             scannerBtnSmall = new Rectangle(430, 148, 146, 146);
             cursorSmallRect = new Rectangle(505, 230, 49, 63);
@@ -225,25 +221,11 @@ namespace EscapeRoom
 
             // TODO: use this.Content to load your game content here
 
-            // images
+            // important images
             rectTexture = Content.Load<Texture2D>("Images/rectangle");
             xTexture = Content.Load<Texture2D>("Images/redX");
             backTexture = Content.Load<Texture2D>("Images/backbutton");
-            tableTexture = Content.Load<Texture2D>("Images/tableback");
-            solOneTexture = Content.Load<Texture2D>("Images/solutionOne");
-            solTwoTexture = Content.Load<Texture2D>("Images/solutionTwo");
-            solThreeTexture = Content.Load<Texture2D>("Images/solutionThree");
-            plusTexture = Content.Load<Texture2D>("Images/plusButton");
-            subTexture = Content.Load<Texture2D>("Images/minusButton");
-            counterTexture = Content.Load<Texture2D>("Images/blankCounter");
             arrowTexture = Content.Load<Texture2D>("Images/arrow");
-            screwdriverTexture = Content.Load<Texture2D>("Images/screwdriver");
-
-            // placeholder textures
-            phTexture = Content.Load<Texture2D>("Placeholders/escaperoomplaceholder");
-            lightsPhTexture = Content.Load<Texture2D>("Placeholders/lightsoutbutton");
-            nonogramPhTexture = Content.Load<Texture2D>("Placeholders/nonogrambutton");
-            fifteenPhTexture = Content.Load<Texture2D>("Placeholders/fifteenslidingpuzzle");
 
             // day posters
             sunPosterFront = Content.Load<Texture2D>("Posters/SunFront");
@@ -278,13 +260,20 @@ namespace EscapeRoom
             // items
             scannerTexture = Content.Load<Texture2D>("Images/ScannerItem");
             keyTexture = Content.Load<Texture2D>("Images/key");
+            screwdriverTexture = Content.Load<Texture2D>("Images/screwdriver");
 
             // random stuff
             scannerBtnTexture = Content.Load<Texture2D>("Images/button");
             cursorTexture = Content.Load<Texture2D>("Images/cursor");
+            plusTexture = Content.Load<Texture2D>("Images/plusButton");
+            subTexture = Content.Load<Texture2D>("Images/minusButton");
+            counterTexture = Content.Load<Texture2D>("Images/blankCounter");
 
             // text
             numFont = Content.Load<SpriteFont>("Fonts/numFont");
+            solOneTexture = Content.Load<Texture2D>("Images/solutionOne");
+            solTwoTexture = Content.Load<Texture2D>("Images/solutionTwo");
+            solThreeTexture = Content.Load<Texture2D>("Images/solutionThree");
 
         }
 
@@ -303,42 +292,7 @@ namespace EscapeRoom
             {
                 case Screen.Intro:
                     break;
-                case Screen.ClassicPuzzles:
-                    switch (puzzle)
-                    {
-                        case 0: // normal screen
-                            if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
-                            {
-                                if (lightsBtn.Contains(mouseState.Position))
-                                    puzzle = 1;
-                                if (nonogramBtn.Contains(mouseState.Position))
-                                    puzzle = 2;
-                                if (fifteenBtn.Contains(mouseState.Position))
-                                    puzzle = 3;
-                            }
-                            break;
-                        case 1: // lights out
-                            //if (!loDone)
-                            //    if (lightGrid.Update(mouseState, prevMouseState))
-                            //        loDone = true;
-                            //if (loDone)
-                            //    BackButton();
-                            break;
-                        case 2: // nonogram
-                            if (keyboardState.IsKeyDown(Keys.LeftAlt) && prevKeyboardState.IsKeyUp(Keys.LeftAlt))
-                                cellGrid.DebugState();
-                            if (!noDone)
-                                if (cellGrid.Update(mouseState, prevMouseState))
-                                    noDone = true;
-                            if (noDone)
-                                BackButton();
-                            
-                            break;
-                        case 3: // 15 sliding puzzle
-                            break;
-                    }
-                    break;
-                case Screen.CipherPuzzles:
+                case Screen.PosterRoom:
                     if (keyboardState.IsKeyDown(Keys.B) && prevKeyboardState.IsKeyUp(Keys.B) && warningClick)
                         scannerEquipped = !scannerEquipped;
                     if (scannerEquipped)
@@ -392,6 +346,13 @@ namespace EscapeRoom
                                 BackButton();
                             break;
                         case 2: // nonogram
+                            if (keyboardState.IsKeyDown(Keys.LeftAlt) && prevKeyboardState.IsKeyUp(Keys.LeftAlt))
+                                cellGrid.DebugState();
+                            if (!tardisActivated)
+                                if (cellGrid.Update(mouseState, prevMouseState))
+                                    tardisActivated = true;
+                            if (tardisActivated)
+                                BackButton();   
                             break;
                         case 3: // sun poster
                             ResetMouseCursor(sunRect);
@@ -433,7 +394,11 @@ namespace EscapeRoom
                             }
                             if (tomorrowToggle && screwdriver)
                             {
-
+                                if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                                {
+                                    if (tardisRect.Contains(mouseState.Position))
+                                        puzzle = 2;
+                                }
                             }
                             break;
                         case 5: // alert poster
@@ -510,19 +475,6 @@ namespace EscapeRoom
                             break;
                     }
                     break;
-                case Screen.FunPuzzles:
-                    switch (puzzle)
-                    {
-                        case 0: // normal screen
-                            break;
-                        case 1: // linglox
-                            break;
-                        case 2: // the square hole
-                            break;
-                        case 3: // calculator
-                            break;
-                    }
-                    break;
                 case Screen.Outro:
                     break;
             }
@@ -544,47 +496,7 @@ namespace EscapeRoom
             {
                 case Screen.Intro:
                     break;
-                case Screen.ClassicPuzzles:
-                    switch (puzzle)
-                    {
-                        case 0: // normal screen
-                            _spriteBatch.Draw(phTexture, window, Color.White);
-                            if (!loDone)
-                                _spriteBatch.Draw(lightsPhTexture, lightsBtn, Color.White);
-                            if (!noDone)
-                                _spriteBatch.Draw(nonogramPhTexture, nonogramBtn, Color.White);
-                            _spriteBatch.Draw(fifteenPhTexture, fifteenBtn, Color.White);
-                            break;
-                        case 1: // lights out
-                            _spriteBatch.Draw(tableTexture, window, Color.White);
-                            _spriteBatch.Draw(rectTexture, lightsBack, Color.Black);
-                            lightGrid.Draw(_spriteBatch);
-                            if (loDone)
-                                _spriteBatch.Draw(backTexture, backBtn, Color.White);
-                            break;
-                        case 2: // nonogram
-                            _spriteBatch.Draw(rectTexture, window, Color.Gray);
-                            switch (randomSolution)
-                            {
-                                case 1:
-                                    _spriteBatch.Draw(solOneTexture, window, Color.White);
-                                    break;
-                                case 2:
-                                    _spriteBatch.Draw(solTwoTexture, window, Color.White);
-                                    break;
-                                case 3:
-                                    _spriteBatch.Draw(solThreeTexture, window, Color.White);
-                                    break;
-                            }
-                            cellGrid.Draw(_spriteBatch);
-                            if (noDone)
-                                _spriteBatch.Draw(backTexture, backBtn, Color.White);
-                            break;
-                        case 3: // 15 sliding puzzle
-                            break;
-                    }
-                    break;
-                case Screen.CipherPuzzles:
+                case Screen.PosterRoom:
                     switch (puzzle)
                     {
                         case 0: // posters
@@ -637,6 +549,22 @@ namespace EscapeRoom
                                 _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                         case 2: // nonogram
+                            _spriteBatch.Draw(rectTexture, window, Color.Gray);
+                            switch (randomSolution)
+                            {
+                                case 1:
+                                    _spriteBatch.Draw(solOneTexture, window, Color.White);
+                                    break;
+                                case 2:
+                                    _spriteBatch.Draw(solTwoTexture, window, Color.White);
+                                    break;
+                                case 3:
+                                    _spriteBatch.Draw(solThreeTexture, window, Color.White);
+                                    break;
+                            }
+                            cellGrid.Draw(_spriteBatch);
+                            if (tardisActivated)
+                                _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                         case 3: // sun poster
                             if (!sunDisappear)
@@ -704,20 +632,6 @@ namespace EscapeRoom
                     }
                     if (scannerEquipped)
                         _spriteBatch.Draw(scannerTexture, scannerRect, Color.White);
-                    break;
-                case Screen.FunPuzzles:
-                    switch (puzzle)
-                    {
-                        case 0: // normal screen
-                            _spriteBatch.Draw(phTexture, window, Color.White);
-                            break;
-                        case 1: // linglox
-                            break;
-                        case 2: // the square hole
-                            break;
-                        case 3: // calculator
-                            break;
-                    }
                     break;
                 case Screen.Outro:
                     break;
