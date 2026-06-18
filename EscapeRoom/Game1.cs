@@ -142,7 +142,7 @@ namespace EscapeRoom
             scannerBtn = new Rectangle(244, 44, 300, 300);
             lockBtn = new Rectangle(347, 175, 109, 188);
             chestBtn = new Rectangle(227, 317, 178, 152);
-            screwdriverRect = new Rectangle(266, 342, 101, 101);
+            screwdriverRect = new Rectangle(350, 199, 101, 101);
             cursorRect = new Rectangle(400, 212, 100, 129);
             scannerBtnSmall = new Rectangle(430, 148, 146, 146);
             cursorSmallRect = new Rectangle(505, 230, 49, 63);
@@ -430,6 +430,10 @@ namespace EscapeRoom
                                 {
                                     tomorrowToggle = true;
                                 }
+                            }
+                            if (tomorrowToggle && screwdriver)
+                            {
+
                             }
                             break;
                         case 5: // alert poster
