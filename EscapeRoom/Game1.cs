@@ -9,6 +9,7 @@ namespace EscapeRoom
     enum Screen
     {
         Intro,
+        Tutorial,
         PosterRoom,
         Outro
     }
@@ -28,16 +29,21 @@ namespace EscapeRoom
 
         Screen screen;
 
+        // intro screen
+        Texture2D bulletinBack, introBack, creditsBack, tutorialBack; // backgrounds
+        Texture2D playTexture, creditsTexture;
+        Rectangle playBtn, creditsBtn, yesBtn, noBtn;
+        int intro; // 0 = main screen; 1 = tutorial?; 2 = credits;
+
+        // tutorial screen
+
         // LIGHTS OUT & NONOGRAM
         Texture2D rectTexture, xTexture, backTexture;
         Texture2D solOneTexture, solTwoTexture, solThreeTexture;
         Rectangle backBtn;
         Rectangle lightsBack;
 
-        // POSTER/CIPHER ROOM
-
         bool lights; // true = on, false = off;
-        
 
         // LIGHTS ON
         Texture2D sunPosterFront, todayPosterFront, alertPosterFront, bdayPosterFront; // front textures
@@ -113,11 +119,19 @@ namespace EscapeRoom
             _graphics.PreferredBackBufferWidth = window.Width;
             _graphics.ApplyChanges();
 
-            screen = Screen.PosterRoom;
+            // needed variables to stay at the top
+            screen = Screen.Intro;
             puzzle = 0; // zero puzzle = original window
             generator = new Random();
             lightsToggle = true;
             tardisActivated = false;
+
+            // intro screen
+            playBtn = new Rectangle(152, 291, 138, 138);
+            creditsBtn = new Rectangle(510, 291, 138, 138);
+            yesBtn = new Rectangle(50, 250, 275, 80);
+            noBtn = new Rectangle(475, 250, 275, 80);
+            intro = 0;
 
             // LIGHTS OUT
             lightsBack = new Rectangle(225, 70, 300, 300);
@@ -134,13 +148,13 @@ namespace EscapeRoom
             maxPosterRect = new Rectangle(213, 0, 375, 500);
             chestToggleRect = new Rectangle(213, 193, 171, 171);
             warningSignRect = new Rectangle(270, 397, 51, 46);
-            scannerBtn = new Rectangle(244, 44, 300, 300);
             lockBtn = new Rectangle(347, 175, 109, 188);
             chestBtn = new Rectangle(227, 317, 178, 152);
             screwdriverRect = new Rectangle(350, 199, 101, 101);
             tardisRect = new Rectangle(321, 214, 160, 251);
-            cursorRect = new Rectangle(400, 212, 100, 129);
+            scannerBtn = new Rectangle(244, 44, 300, 300);
             scannerBtnSmall = new Rectangle(430, 148, 146, 146);
+            cursorRect = new Rectangle(400, 212, 100, 129);
             cursorSmallRect = new Rectangle(505, 230, 49, 63);
             arrowRect = new Rectangle(379, 3, 43, 43);
 
@@ -226,6 +240,12 @@ namespace EscapeRoom
             xTexture = Content.Load<Texture2D>("Images/redX");
             backTexture = Content.Load<Texture2D>("Images/backbutton");
             arrowTexture = Content.Load<Texture2D>("Images/arrow");
+            bulletinBack = Content.Load<Texture2D>("Images/bulletinboard");
+            introBack = Content.Load<Texture2D>("Images/introscreen");
+            playTexture = Content.Load<Texture2D>("Images/playbutton");
+            creditsTexture = Content.Load<Texture2D>("Images/creditsbutton");
+            creditsBack = Content.Load<Texture2D>("Images/credits");
+            tutorialBack = Content.Load<Texture2D>("Images/tutorialBack");
 
             // day posters
             sunPosterFront = Content.Load<Texture2D>("Posters/SunFront");
@@ -291,25 +311,41 @@ namespace EscapeRoom
             switch (screen) 
             {
                 case Screen.Intro:
+                    if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                    {
+                        if (backBtn.Contains(mouseState.Position))
+                            intro = 0;
+                        switch (intro)
+                        {
+                            case 0:
+                                if (playBtn.Contains(mouseState.Position))
+                                    intro = 1;
+                                if (creditsBtn.Contains(mouseState.Position))
+                                    intro = 2;
+                                break;
+                            case 1:
+                                if (yesBtn.Contains(mouseState.Position))
+                                    screen = Screen.Tutorial;
+                                if (noBtn.Contains(mouseState.Position))
+                                    screen = Screen.PosterRoom;
+                                break;
+                            case 2:
+                                break;
+                        }
+                    }
+                    break;
+                case Screen.Tutorial:
+                    ScannerItem();
                     break;
                 case Screen.PosterRoom:
-                    if (keyboardState.IsKeyDown(Keys.B) && prevKeyboardState.IsKeyUp(Keys.B) && warningClick)
-                        scannerEquipped = !scannerEquipped;
-                    if (scannerEquipped)
-                    {
-                        scannerRect.X = mouseState.X;
-                        scannerRect.Y = mouseState.Y;
-                        IsMouseVisible = false;
-                    }
-                    else
-                        IsMouseVisible = true;
+                    ScannerItem();
                     switch (puzzle)
                     {
                         case 0:
                             CursorChange(sunRect, todayRect, alertRect, bdayRect);
                             if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
                             {
-                                if (arrowRect.Contains(mouseState.Position))
+                                if (arrowRect.Contains(mouseState.Position) && !lightsToggle)
                                     puzzle = 1;
                                 if (!sunRect.Contains(mouseState.Position) && !todayRect.Contains(mouseState.Position) && !alertRect.Contains(mouseState.Position) && !bdayRect.Contains(mouseState.Position) && lightsToggle)
                                     lights = !lights;
@@ -495,6 +531,25 @@ namespace EscapeRoom
             switch (screen)
             {
                 case Screen.Intro:
+                    if (intro == 0) // main screen
+                    {
+                        _spriteBatch.Draw(introBack, window, Color.White);
+                        _spriteBatch.Draw(playTexture, playBtn, Color.White);
+                        _spriteBatch.Draw(creditsTexture, creditsBtn, Color.White);
+                    }
+                    else if (intro == 1) // ask about tutorial
+                    {
+                        _spriteBatch.Draw(rectTexture, window, Color.LightGray);
+                        _spriteBatch.Draw(tutorialBack, window, Color.White);
+                        _spriteBatch.Draw(backTexture, backBtn, Color.White);
+                    }
+                    else if (intro == 2) // credits
+                    {
+                        _spriteBatch.Draw(creditsBack, window, Color.White);
+                        _spriteBatch.Draw(backTexture, backBtn, Color.White);
+                    }
+                    break;
+                case Screen.Tutorial:
                     break;
                 case Screen.PosterRoom:
                     switch (puzzle)
@@ -657,8 +712,22 @@ namespace EscapeRoom
             if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
             {
                 if (backBtn.Contains(mouseState.Position))
-                    puzzle = 0;
+                    puzzle = backPuzzle;
             }
+        }
+
+        public void ScannerItem()
+        {
+            if (keyboardState.IsKeyDown(Keys.B) && prevKeyboardState.IsKeyUp(Keys.B))
+                scannerEquipped = !scannerEquipped;
+            if (scannerEquipped)
+            {
+                scannerRect.X = mouseState.X;
+                scannerRect.Y = mouseState.Y;
+                IsMouseVisible = false;
+            }
+            else
+                IsMouseVisible = true;
         }
 
         public void SetMouseCursor(Rectangle rect)
