@@ -13,6 +13,13 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin Fonts/barcodeFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/barcodeFont.spritefont
+
 #begin Fonts/numFont.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

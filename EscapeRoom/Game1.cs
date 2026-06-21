@@ -76,7 +76,7 @@ namespace EscapeRoom
         bool tardisActivated; // true = you can escape! false = you can't escape.
         int clicks;
 
-        // ITEMS
+        // SCANNER
         bool scannerEquipped;
         Texture2D scannerTexture;
         Rectangle scannerRect;
@@ -86,6 +86,10 @@ namespace EscapeRoom
         Rectangle sunBarcode, todayBarcode, alertBarcode, bdayBarcode; // day posters
         Rectangle moonBarcode, yesterdayBarcode, barcodeBarcode, canadaBarcode; // night posters
         Rectangle chestBarcode, tomorrowBarcode, scannerBarcode; // special posters
+        float barcodeTimer, barcodeStop; // barcodeTimer counts up, barcodeStop stops showing the text after 4s.
+        string barcodeText;
+        bool showBarcodeText;
+        SpriteFont barcodeFont;
 
         // LOCK SCREEN
         bool code, keyCollected;
@@ -181,6 +185,13 @@ namespace EscapeRoom
 
             scannerEquipped = false;
             scannerRect = new Rectangle(mouseState.X, mouseState.Y, 45, 45);
+
+            // BARCODE
+            sunBarcode = new Rectangle(259, 395, 121, 66);
+            barcodeTimer = 0f; barcodeStop = 4f;
+            showBarcodeText = false;
+
+
 
             // lock SCREEN
             plusBtn1 = new Rectangle(68, 88, 80, 80);
@@ -301,7 +312,10 @@ namespace EscapeRoom
             lockPosterFront = Content.Load<Texture2D>("Posters/LockFront");
             lockPosterBack = Content.Load<Texture2D>("Posters/LockBack");
 
-            // items
+            // barcodes
+            barcodeFont = Content.Load<SpriteFont>("Fonts/barcodeFont");
+
+            // scanners
             scannerTexture = Content.Load<Texture2D>("Images/ScannerItem");
             keyTexture = Content.Load<Texture2D>("Images/key");
             screwdriverTexture = Content.Load<Texture2D>("Images/screwdriver");
@@ -331,6 +345,9 @@ namespace EscapeRoom
 
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+
+            if (showBarcodeText)
+                barcodeTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
 
             switch (screen) 
             {
@@ -444,6 +461,7 @@ namespace EscapeRoom
                             BackButton();
                             bulbAppear = true;
                             backSun = BackToggle(maxPosterRect, backSun);
+                            BarcodeScanner(sunBarcode, moonBarcode, backSun, sunDisappear);
                             if (lights && !backSun && !sunDisappear)
                             {
                                 if (keyboardState.IsKeyDown(Keys.LeftShift) && keyboardState.IsKeyDown(Keys.LeftControl) 
@@ -702,6 +720,7 @@ namespace EscapeRoom
                                 if (showScrewdriver)
                                     _spriteBatch.Draw(screwdriverTexture, screwdriverRect, Color.White);
                             }
+                            DrawBarcodeText("[noburger]", "[No Sun = No Moon]", new Vector2(224, 341), backSun, sunDisappear);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                         case 4: // today poster
@@ -938,6 +957,80 @@ namespace EscapeRoom
                 _spriteBatch.Draw(posterBack, posterRect, Color.White);
             else
                 _spriteBatch.Draw(posterFront, posterRect, Color.White);
+        }
+
+        public void BarcodeScanner(Rectangle specialBarcode, bool backToggle, bool specialPoster)
+        {
+            if (scannerEquipped && backToggle && specialPoster)
+                if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                    if (specialBarcode.Contains(mouseState.Position))
+                    {
+                        showBarcodeText = true;
+                        if ((barcodeTimer > barcodeStop) || !backToggle)
+                        {
+                            barcodeTimer = 0f;
+                            showBarcodeText = false;
+                        }
+                    }
+        }
+
+        public void BarcodeScanner(Rectangle dayBarcode, Rectangle nightBarcode, bool backToggle, bool specialPoster)
+        {
+            if (scannerEquipped && backToggle && !specialPoster)
+                if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                {
+                    if (lights)
+                    {
+                        if (dayBarcode.Contains(mouseState.Position))
+                        {
+                            showBarcodeText = true;
+                            if ((barcodeTimer > barcodeStop) || !backToggle)
+                            {
+                                barcodeTimer = 0f;
+                                showBarcodeText = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        if (nightBarcode.Contains(mouseState.Position))
+                        {
+                            showBarcodeText = true;
+                            if ((barcodeTimer > barcodeStop) || !backToggle)
+                            {
+                                barcodeTimer = 0f;
+                                showBarcodeText = false;
+                            }
+                        }
+                    }
+                     
+                }
+        }
+
+        public void DrawBarcodeText(string dayBarcodeOutput, string nightBarcodeOutput, Vector2 textLocation, bool backToggle, bool specialToggle)
+        {
+            if (showBarcodeText && backToggle && !specialToggle)
+            {
+                if (lights)
+                {
+                    barcodeText = dayBarcodeOutput;
+                    _spriteBatch.DrawString(barcodeFont, dayBarcodeOutput, textLocation, Color.Red);
+                }
+                else
+                {
+                    barcodeText = nightBarcodeOutput;
+                    _spriteBatch.DrawString(barcodeFont, nightBarcodeOutput, textLocation, Color.Red);
+                }
+            }
+        }
+
+        public void DrawBarcodeText(string specialBarcodeOutput, Vector2 textLocation, bool backToggle)
+        {
+            if (showBarcodeText && backToggle)
+            {
+                barcodeText = specialBarcodeOutput;
+                _spriteBatch.DrawString(barcodeFont, specialBarcodeOutput, textLocation, Color.Red);
+            }
         }
 
 
