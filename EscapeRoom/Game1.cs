@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace EscapeRoom
@@ -41,6 +42,7 @@ namespace EscapeRoom
         Texture2D leftClickTexture, solveTexture;
         Rectangle leftClickRect, solveRect;
         bool backGame;
+        bool gameSpecial; // just to fill the method LOL
 
         // LIGHTS OUT & NONOGRAM
         Texture2D rectTexture, xTexture, backTexture;
@@ -51,7 +53,6 @@ namespace EscapeRoom
         // LIGHTS ON
         Texture2D sunPosterFront, todayPosterFront, alertPosterFront, bdayPosterFront; // front textures
         Texture2D sunPosterBack, todayPosterBack, alertPosterBack, bdayPosterBack; // back textures
-        Texture2D wallpaperTexture; // wallpaper background 
         Texture2D bulbOnTexture, bulbBrokenTexture;
         Rectangle sunRect, todayRect, alertRect, bdayRect, maxPosterRect;
         Rectangle bulbRect, bulbOnRect;
@@ -85,7 +86,7 @@ namespace EscapeRoom
         Rectangle gameBarcode; // tutorial
         Rectangle sunBarcode, todayBarcode, alertBarcode, bdayBarcode; // day posters
         Rectangle moonBarcode, yesterdayBarcode, barcodeBarcode, canadaBarcode; // night posters
-        Rectangle chestBarcode, tomorrowBarcode, scannerBarcode; // special posters
+        Rectangle chestBarcode, tomorrowBarcode, scannerBarcodeFront, scannerBarcodeBack; // special posters
         float barcodeTimer, barcodeStop; // barcodeTimer counts up, barcodeStop stops showing the text after 4s.
         string barcodeText;
         bool showBarcodeText;
@@ -113,7 +114,6 @@ namespace EscapeRoom
 
         Random generator;
         int puzzle; // puzzles
-        bool loDone, noDone;
 
         public Game1()
         {
@@ -134,7 +134,7 @@ namespace EscapeRoom
             screen = Screen.Intro;
             puzzle = 0; // zero puzzle = original window
             generator = new Random();
-            lightsToggle = false;
+            lightsToggle = true;
             tardisActivated = false;
 
             // intro screen
@@ -149,6 +149,7 @@ namespace EscapeRoom
             leftClickRect = new Rectangle(123, 140, 237, 220);
             solveRect = new Rectangle(-11, 140, 230, 220);
             backGame = false;
+            gameSpecial = false;
 
             // LIGHTS OUT
             lightsBack = new Rectangle(225, 70, 300, 300);
@@ -187,11 +188,21 @@ namespace EscapeRoom
             scannerRect = new Rectangle(mouseState.X, mouseState.Y, 45, 45);
 
             // BARCODE
+            gameBarcode = new Rectangle(259, 215, 283, 54);
             sunBarcode = new Rectangle(259, 395, 121, 66);
+            moonBarcode = new Rectangle(305, 399, 191, 47);
+            chestBarcode = new Rectangle(261, 381, 280, 62);
+            todayBarcode = new Rectangle(260, 397, 116, 48);
+            yesterdayBarcode = new Rectangle(264, 356, 273, 74);
+            tomorrowBarcode = new Rectangle(318, 369, 166, 69);
+            alertBarcode = new Rectangle(311, 387, 179, 56);
+            barcodeBarcode = new Rectangle(277, 229, 247, 70);
+            scannerBarcodeFront = new Rectangle(367, 397, 59, 46);
+            scannerBarcodeBack = new Rectangle(262, 370, 277, 68);
+            bdayBarcode = new Rectangle(285, 382, 231, 59);
+            canadaBarcode = new Rectangle(259, 383, 279, 57);
             barcodeTimer = 0f; barcodeStop = 4f;
-            showBarcodeText = false;
-
-
+            //showBarcodeText = false;
 
             // lock SCREEN
             plusBtn1 = new Rectangle(68, 88, 80, 80);
@@ -246,13 +257,7 @@ namespace EscapeRoom
             }
             cellGrid.DebugSolution();
 
-            // boolean variables to decide if something is complete
-            loDone = false; // lights out
-            noDone = false; // nonogram
-
         }
-
-
 
         protected override void LoadContent()
         {
@@ -347,7 +352,14 @@ namespace EscapeRoom
                 Exit();
 
             if (showBarcodeText)
+            {
                 barcodeTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (barcodeTimer > barcodeStop)
+                {
+                    barcodeTimer = 0f;
+                    showBarcodeText = false;
+                }
+            }
 
             switch (screen) 
             {
@@ -401,6 +413,7 @@ namespace EscapeRoom
                             ResetMouseCursor(gameRect);
                             BackButton();
                             backGame = BackToggle(maxPosterRect, backGame);
+                            BarcodeScanner(gameBarcode, backGame, gameSpecial);
                             break;
                     }
                     break;
@@ -458,10 +471,18 @@ namespace EscapeRoom
                             break;
                         case 3: // sun poster
                             ResetMouseCursor(sunRect);
-                            BackButton();
+                            if (!screwdriver)
+                                BackButton();
+                            else
+                                BackButton(4);
                             bulbAppear = true;
                             backSun = BackToggle(maxPosterRect, backSun);
-                            BarcodeScanner(sunBarcode, moonBarcode, backSun, sunDisappear);
+                            if (lights)
+                                BarcodeScanner(sunBarcode, backSun, !sunDisappear);
+                            else
+                                BarcodeScanner(moonBarcode, backSun, !sunDisappear);
+                            if (lights || !lights)
+                                BarcodeScanner(chestBarcode, backSun, sunDisappear);
                             if (lights && !backSun && !sunDisappear)
                             {
                                 if (keyboardState.IsKeyDown(Keys.LeftShift) && keyboardState.IsKeyDown(Keys.LeftControl) 
@@ -471,7 +492,7 @@ namespace EscapeRoom
                                         sunDisappear = true;
                                 }
                             }
-                            if (sunDisappear && keyCollected && !screwdriver)
+                            if (sunDisappear && keyCollected && tomorrowToggle && !backSun && !screwdriver)
                             {
                                 if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
                                 {
@@ -489,6 +510,13 @@ namespace EscapeRoom
                             Mouse.SetCursor(MouseCursor.Arrow);
                             BackButton();
                             backToday = BackToggle(maxPosterRect, backToday);
+                            if (lights)
+                            {
+                                BarcodeScanner(todayBarcode, backToday, !tomorrowToggle);
+                                BarcodeScanner(tomorrowBarcode, backToday, tomorrowToggle);
+                            }
+                            else
+                                BarcodeScanner(yesterdayBarcode, backToday, !tomorrowToggle);
                             if (lights && !backToday)
                             {
                                 if (keyboardState.IsKeyDown(Keys.LeftControl) && (keyboardState.IsKeyDown(Keys.K) && prevKeyboardState.IsKeyUp(Keys.K)))
@@ -509,6 +537,14 @@ namespace EscapeRoom
                             Mouse.SetCursor(MouseCursor.Arrow);
                             BackButton();
                             backAlert = BackToggle(maxPosterRect, backAlert);
+                            if (lights)
+                                BarcodeScanner(alertBarcode, backAlert, !warningClick);
+                            else
+                            {
+                                BarcodeScanner(barcodeBarcode, !backAlert, !warningClick);
+                                BarcodeScanner(scannerBarcodeFront, !backAlert, warningClick);
+                                BarcodeScanner(scannerBarcodeBack, backAlert, warningClick);
+                            }
                             if (!lights && !backAlert && !warningClick)
                             {
                                 if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
@@ -539,11 +575,15 @@ namespace EscapeRoom
                             Mouse.SetCursor(MouseCursor.Arrow);
                             BackButton();
                             backBday = BackToggle(maxPosterRect, backBday);
-                            if (buttonClicked && !backBday && lights)
+                            if (lights)
+                                BarcodeScanner(bdayBarcode, backBday, !buttonClicked);
+                            else
+                                BarcodeScanner(canadaBarcode, backBday, !buttonClicked);
+                            if (buttonClicked && sunDisappear && !backBday && lights)
                             {
                                 SetMouseCursor(lockBtn);
                                 ResetMouseCursor(lockBtn);
-                                if (mouseState.LeftButton == ButtonState.Pressed && mouseState.RightButton == ButtonState.Released)
+                                if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
                                 {
                                     if (lockBtn.Contains(mouseState.Position))
                                         puzzle = 7;
@@ -552,7 +592,7 @@ namespace EscapeRoom
                             break;
                         case 7: // lock
                             Mouse.SetCursor(MouseCursor.Arrow);
-                            BackButton(4);
+                            BackButton(6);
                             if (!code)
                             {
                                 // subtract buttons (individual methods not working)
@@ -631,6 +671,7 @@ namespace EscapeRoom
                             DrawPoster(backGame, gamePosterFront, gamePosterBack, maxPosterRect);
                             if (!backGame)
                                 _spriteBatch.Draw(solveTexture, solveRect, Color.White);
+                            DrawBarcodeText("[HIDDEN MESSAGE REVEALED]", new Vector2(246, 166), backGame);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                     }
@@ -713,29 +754,56 @@ namespace EscapeRoom
                             break;
                         case 3: // sun poster
                             if (!sunDisappear)
+                            {
                                 LightsToggle(backSun, sunPosterFront, sunPosterBack, moonPosterFront, moonPosterBack, maxPosterRect);
+                                if (lights)
+                                    DrawBarcodeText("[noburger]", new Vector2(224, 341), backSun); // sun poster
+                                else
+                                    DrawBarcodeText("[No Sun = No Moon]", new Vector2(224, 341), backSun); // moon poster
+                            }
                             else
                             {
                                 LightsToggle(backSun, chestPosterFront, chestPosterBack, chestPosterFront, chestPosterBack, maxPosterRect);
+                                if (lights || !lights)
+                                    DrawBarcodeText("[Shift your keyboard]", new Vector2(257, 341), backSun); // chest poster
                                 if (showScrewdriver)
                                     _spriteBatch.Draw(screwdriverTexture, screwdriverRect, Color.White);
                             }
-                            DrawBarcodeText("[noburger]", "[No Sun = No Moon]", new Vector2(224, 341), backSun, sunDisappear);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                         case 4: // today poster
                             if (!tomorrowToggle)
+                            {
                                 LightsToggle(backToday, todayPosterFront, todayPosterBack, yesterdayPosterFront, yesterdayPosterBack, maxPosterRect);
+                                if (lights)
+                                    DrawBarcodeText("[Vigenere]", new Vector2(247, 294), backToday); // today poster
+                            }
                             else
+                            {
                                 LightsToggle(backToday, tomorrowPosterFront, tomorrowPosterBack, yesterdayPosterFront, yesterdayPosterBack, maxPosterRect);
+                                if (lights)
+                                    DrawBarcodeText("[Dr. Who?]", new Vector2(247, 294), backToday); // tomorrow poster
+                            }
+                            if (!lights)
+                                DrawBarcodeText("[Musical Artist]", new Vector2(247, 294), backToday); // yesterday poster
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
                             break;
                         case 5: // alert poster
                             if (!warningClick)
+                            {
                                 LightsToggle(backAlert, alertPosterFront, alertPosterBack, barcodePosterFront, barcodePosterBack, maxPosterRect);
+                                if (lights && backAlert)
+                                    DrawBarcodeText("[Two Commands]", new Vector2(278, 340), backAlert); // alert poster
+                                if (!lights && !backAlert)
+                                    DrawBarcodeText("[What did I just say]", new Vector2(277, 184), !backAlert); // barcode poster
+                            }
                             else
                             {
                                 LightsToggle(backAlert, alertPosterFront, alertPosterBack, scannerPosterFront, scannerPosterBack, maxPosterRect);
+                                if (!lights && !backAlert)
+                                    DrawBarcodeText("[hi]", new Vector2(437, 407), !backAlert); // scanner poster front
+                                if (!lights && backAlert)
+                                    DrawBarcodeText("[Click it]", new Vector2(279, 461), backAlert); // scanner poster back
                                 if (backAlert && !buttonClicked)
                                 {
                                     _spriteBatch.Draw(scannerBtnTexture, scannerBtn, Color.White);
@@ -746,7 +814,13 @@ namespace EscapeRoom
                             break;
                         case 6: // bday poster
                             if (!lockPoster)
+                            {
                                 LightsToggle(backBday, bdayPosterFront, bdayPosterBack, canadaPosterFront, canadaPosterBack, maxPosterRect);
+                                if (lights)
+                                    DrawBarcodeText("[Button. Canada.]", new Vector2(247, 294), backBday); // bday poster
+                                else
+                                    DrawBarcodeText("[Stay on this screen]", new Vector2(247, 294), backBday); // canada poster
+                            }
                             else
                                 LightsToggle(backBday, lockPosterFront, lockPosterBack, canadaPosterFront, canadaPosterBack, maxPosterRect);
                             _spriteBatch.Draw(backTexture, backBtn, Color.White);
@@ -794,7 +868,10 @@ namespace EscapeRoom
             if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
             {
                 if (backBtn.Contains(mouseState.Position))
+                {
                     puzzle = 0;
+                    showBarcodeText = false;
+                }
             }
         }
 
@@ -972,56 +1049,6 @@ namespace EscapeRoom
                             showBarcodeText = false;
                         }
                     }
-        }
-
-        public void BarcodeScanner(Rectangle dayBarcode, Rectangle nightBarcode, bool backToggle, bool specialPoster)
-        {
-            if (scannerEquipped && backToggle && !specialPoster)
-                if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
-                {
-                    if (lights)
-                    {
-                        if (dayBarcode.Contains(mouseState.Position))
-                        {
-                            showBarcodeText = true;
-                            if ((barcodeTimer > barcodeStop) || !backToggle)
-                            {
-                                barcodeTimer = 0f;
-                                showBarcodeText = false;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        if (nightBarcode.Contains(mouseState.Position))
-                        {
-                            showBarcodeText = true;
-                            if ((barcodeTimer > barcodeStop) || !backToggle)
-                            {
-                                barcodeTimer = 0f;
-                                showBarcodeText = false;
-                            }
-                        }
-                    }
-                     
-                }
-        }
-
-        public void DrawBarcodeText(string dayBarcodeOutput, string nightBarcodeOutput, Vector2 textLocation, bool backToggle, bool specialToggle)
-        {
-            if (showBarcodeText && backToggle && !specialToggle)
-            {
-                if (lights)
-                {
-                    barcodeText = dayBarcodeOutput;
-                    _spriteBatch.DrawString(barcodeFont, dayBarcodeOutput, textLocation, Color.Red);
-                }
-                else
-                {
-                    barcodeText = nightBarcodeOutput;
-                    _spriteBatch.DrawString(barcodeFont, nightBarcodeOutput, textLocation, Color.Red);
-                }
-            }
         }
 
         public void DrawBarcodeText(string specialBarcodeOutput, Vector2 textLocation, bool backToggle)

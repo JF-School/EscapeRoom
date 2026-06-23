@@ -19,8 +19,6 @@ namespace EscapeRoom
         private Texture2D _defaultTexture;
         private Color _color;
         private Point _location;
-        private string _hHint;
-        private string _vHint;
 
         //Cell[,] solution, 
         public CellGrid(Texture2D crossTexture, Texture2D defaultTexture, Point location, Color color)

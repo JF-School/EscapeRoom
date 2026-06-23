@@ -28,7 +28,6 @@ namespace EscapeRoom
                 for (int x = 0; x < 5; x++)
                 {
                     _lightBoard[x, y] = new Light(_texture, new Rectangle(x * 60 + _location.X, y * 60 + _location.Y, 50, 50), _onColor);
-                    
                 }
             _puzzle = puzzle;
             switch (puzzle)
