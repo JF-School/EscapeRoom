@@ -1,6 +1,8 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
 using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -35,6 +37,8 @@ namespace EscapeRoom
         Texture2D playTexture, creditsTexture;
         Rectangle playBtn, creditsBtn, yesBtn, noBtn;
         int intro; // 0 = main screen; 1 = tutorial?; 2 = credits;
+        SoundEffect introMusic, buttonClick;
+        SoundEffectInstance introMusicInstance;
 
         // tutorial screen
         Texture2D gamePosterFront, gamePosterBack;
@@ -43,14 +47,16 @@ namespace EscapeRoom
         Rectangle leftClickRect, solveRect;
         bool backGame;
         bool gameSpecial; // just to fill the method LOL
+        SoundEffect tutorialMusic;
+        SoundEffectInstance tutorialMusicInstance;
 
-        // LIGHTS OUT & NONOGRAM
+        // LIGHTS OUT PUZZLE & NONOGRAM
         Texture2D rectTexture, xTexture, backTexture;
         Texture2D solOneTexture, solTwoTexture, solThreeTexture;
         Rectangle backBtn;
         Rectangle lightsBack;
 
-        // LIGHTS ON
+        // DAY POSTERS -- LIGHTS ON
         Texture2D sunPosterFront, todayPosterFront, alertPosterFront, bdayPosterFront; // front textures
         Texture2D sunPosterBack, todayPosterBack, alertPosterBack, bdayPosterBack; // back textures
         Texture2D bulbOnTexture, bulbBrokenTexture;
@@ -60,11 +66,15 @@ namespace EscapeRoom
         bool backSun, backToday, backAlert, backBday; // false = front, true = back;
         bool lightsToggle; // true = ability to turn lights on/off. false = no ability to do so;
         bool bulbAppear;
+        SoundEffect dayMusic, backBtnSound, clickPoster, flipPoster, clickLight;
+        SoundEffectInstance dayMusicInstance;
 
-        // LIGHTS OFF
+        // NIGHT POSTERS -- LIGHTS OFF
         Texture2D moonPosterFront, yesterdayPosterFront, barcodePosterFront, canadaPosterFront;
         Texture2D moonPosterBack, yesterdayPosterBack, barcodePosterBack, canadaPosterBack;
         Texture2D bulbOffTexture;
+        SoundEffect nightMusic;
+        SoundEffectInstance nightMusicInstance;
 
         // SPECIAL POSTERS
         bool sunDisappear, warningClick, tomorrowToggle, buttonClicked, lockPoster;
@@ -76,11 +86,13 @@ namespace EscapeRoom
         bool showScrewdriver, screwdriver;
         bool tardisActivated; // true = you can escape! false = you can't escape.
         int clicks;
+        SoundEffect specialSound, tardisWhoosh, completeGame, chestError, chestOpen;
 
         // SCANNER
         bool scannerEquipped;
         Texture2D scannerTexture;
         Rectangle scannerRect;
+        SoundEffect barcodeScan, itemSwitch;
 
         // BARCODES
         Rectangle gameBarcode; // tutorial
@@ -102,7 +114,15 @@ namespace EscapeRoom
         SpriteFont numFont;
         Vector2 fontLoca1, fontLoca2, fontLoca3, fontLoca4;
         int num1, num2, num3, num4;
-        Color hoverColor, textColor;
+        Color textColor;
+
+        // outro screen
+        Texture2D outroBack, escapeTexture;
+        Rectangle escapeBtn;
+        SpriteFont outroFont;
+        float posterTime;
+        SoundEffect outroMusic;
+        SoundEffectInstance outroMusicInstance;
 
         LightGrid lightGrid;
         CellGrid cellGrid;
@@ -131,10 +151,10 @@ namespace EscapeRoom
             _graphics.ApplyChanges();
 
             // needed variables to stay at the top
-            screen = Screen.Intro;
+            screen = Screen.Outro;
             puzzle = 0; // zero puzzle = original window
             generator = new Random();
-            lightsToggle = true;
+            lightsToggle = false;
             tardisActivated = false;
 
             // intro screen
@@ -224,10 +244,13 @@ namespace EscapeRoom
             fontLoca4 = new Vector2(658, 192);
 
             num1 = 0; num2 = 0; num3 = 0; num4 = 0;
-            hoverColor = Color.White; textColor = Color.Black;
+            textColor = Color.Black;
             code = false; keyCollected = false;
 
             keyRect = new Rectangle(325, 168, 165, 165);
+
+            // outro screen
+            escapeBtn = new Rectangle(600, 405, 166, 59);
 
 
             // TODO: Add your initialization logic here
@@ -255,7 +278,8 @@ namespace EscapeRoom
                     cellGrid.Solution = solution3;
                     break;
             }
-            cellGrid.DebugSolution();
+            //cellGrid.DebugSolution();
+
 
         }
 
@@ -317,9 +341,6 @@ namespace EscapeRoom
             lockPosterFront = Content.Load<Texture2D>("Posters/LockFront");
             lockPosterBack = Content.Load<Texture2D>("Posters/LockBack");
 
-            // barcodes
-            barcodeFont = Content.Load<SpriteFont>("Fonts/barcodeFont");
-
             // scanners
             scannerTexture = Content.Load<Texture2D>("Images/ScannerItem");
             keyTexture = Content.Load<Texture2D>("Images/key");
@@ -332,11 +353,44 @@ namespace EscapeRoom
             subTexture = Content.Load<Texture2D>("Images/minusButton");
             counterTexture = Content.Load<Texture2D>("Images/blankCounter");
 
+            // outro screen
+            outroBack = Content.Load<Texture2D>("Images/OutroScreen");
+            escapeTexture = Content.Load<Texture2D>("Images/escapeButton");
+
             // text
             numFont = Content.Load<SpriteFont>("Fonts/numFont");
+            barcodeFont = Content.Load<SpriteFont>("Fonts/barcodeFont");
+            outroFont = Content.Load<SpriteFont>("Fonts/outroFont");
             solOneTexture = Content.Load<Texture2D>("Images/solutionOne");
             solTwoTexture = Content.Load<Texture2D>("Images/solutionTwo");
             solThreeTexture = Content.Load<Texture2D>("Images/solutionThree");
+
+            // songs
+            introMusic = Content.Load<SoundEffect>("Songs/introMusic");
+            introMusicInstance = introMusic.CreateInstance();
+            tutorialMusic = Content.Load<SoundEffect>("Songs/tutorialMusic");
+            tutorialMusicInstance = tutorialMusic.CreateInstance();
+            dayMusic = Content.Load<SoundEffect>("Songs/dayMusic");
+            dayMusicInstance = dayMusic.CreateInstance();
+            nightMusic = Content.Load<SoundEffect>("Songs/nightMusic");
+            nightMusicInstance = nightMusic.CreateInstance();
+            outroMusic = Content.Load<SoundEffect>("Songs/outroMusic");
+            outroMusicInstance = outroMusic.CreateInstance();
+
+            // sound effects
+            backBtnSound = Content.Load<SoundEffect>("Sounds/BackButton");
+            barcodeScan = Content.Load<SoundEffect>("Sounds/BarcodeScan");
+            buttonClick = Content.Load<SoundEffect>("Sounds/ButtonClick");
+            chestError = Content.Load<SoundEffect>("Sounds/ChestError");
+            chestOpen = Content.Load<SoundEffect>("Sounds/ChestOpen");
+            clickLight = Content.Load<SoundEffect>("Sounds/ClickLight");
+            clickPoster = Content.Load<SoundEffect>("Sounds/ClickPoster");
+            completeGame = Content.Load<SoundEffect>("Sounds/CompletedGame");
+            itemSwitch = Content.Load<SoundEffect>("Sounds/ItemSwitch");
+            flipPoster = Content.Load<SoundEffect>("Sounds/PosterTurn");
+            specialSound = Content.Load<SoundEffect>("Sounds/SpecialPoster");
+            tardisWhoosh = Content.Load<SoundEffect>("Sounds/TardisWhooshy");
+            
 
         }
 
@@ -370,19 +424,19 @@ namespace EscapeRoom
                             intro = 0;
                         switch (intro)
                         {
-                            case 0:
+                            case 0: // main screen
                                 if (playBtn.Contains(mouseState.Position))
                                     intro = 1;
                                 if (creditsBtn.Contains(mouseState.Position))
                                     intro = 2;
                                 break;
-                            case 1:
+                            case 1: // tutorial?
                                 if (yesBtn.Contains(mouseState.Position))
                                     screen = Screen.Tutorial;
                                 if (noBtn.Contains(mouseState.Position))
                                     screen = Screen.PosterRoom;
                                 break;
-                            case 2:
+                            case 2: // credits (no buttons)
                                 break;
                         }
                     }
@@ -418,6 +472,7 @@ namespace EscapeRoom
                     }
                     break;
                 case Screen.PosterRoom:
+                    posterTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
                     ScannerItem();
                     switch (puzzle)
                     {
@@ -426,7 +481,10 @@ namespace EscapeRoom
                             if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
                             {
                                 if (bulbRect.Contains(mouseState.Position) && !lightsToggle && bulbAppear)
+                                {
                                     puzzle = 1;
+                                    Debug.WriteLine("Press ALT + L to instantly solve the puzzle.");
+                                }
                                 if (bulbRect.Contains(mouseState.Position) && lightsToggle)
                                     lights = !lights;
                                 if (sunRect.Contains(mouseState.Position))
@@ -453,21 +511,25 @@ namespace EscapeRoom
                             break;
                         case 1: // lights out
                             if (!lightsToggle)
-                                if (lightGrid.Update(mouseState, prevMouseState))
-                                {
+                            {
+                                if (lightGrid.Update(mouseState, prevMouseState) 
+                                    || (keyboardState.IsKeyDown(Keys.LeftAlt) && keyboardState.IsKeyDown(Keys.L) && prevKeyboardState.IsKeyUp(Keys.L)))
                                     lightsToggle = true;
-                                }
+                            }
                             if (lightsToggle)
                                 BackButton();
                             break;
                         case 2: // nonogram
-                            if (keyboardState.IsKeyDown(Keys.LeftAlt) && prevKeyboardState.IsKeyUp(Keys.LeftAlt))
-                                cellGrid.DebugState();
                             if (!tardisActivated)
-                                if (cellGrid.Update(mouseState, prevMouseState))
+                                if (cellGrid.Update(mouseState, prevMouseState) 
+                                    || (keyboardState.IsKeyDown(Keys.LeftAlt) && keyboardState.IsKeyDown(Keys.N) && prevKeyboardState.IsKeyUp(Keys.N)))
                                     tardisActivated = true;
                             if (tardisActivated)
-                                BackButton();   
+                            {
+                                if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                                    if (escapeBtn.Contains(mouseState.Position))
+                                        screen = Screen.Outro;
+                            }
                             break;
                         case 3: // sun poster
                             ResetMouseCursor(sunRect);
@@ -529,7 +591,10 @@ namespace EscapeRoom
                                 if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
                                 {
                                     if (tardisRect.Contains(mouseState.Position))
+                                    {
                                         puzzle = 2;
+                                        Debug.WriteLine("Press ALT + N to instantly complete the puzzle.");
+                                    }
                                 }
                             }
                             break;
@@ -750,7 +815,7 @@ namespace EscapeRoom
                             }
                             cellGrid.Draw(_spriteBatch);
                             if (tardisActivated)
-                                _spriteBatch.Draw(backTexture, backBtn, Color.White);
+                                _spriteBatch.Draw(escapeTexture, escapeBtn, Color.White);
                             break;
                         case 3: // sun poster
                             if (!sunDisappear)
@@ -854,6 +919,8 @@ namespace EscapeRoom
                         _spriteBatch.Draw(scannerTexture, scannerRect, Color.White);
                     break;
                 case Screen.Outro:
+                    _spriteBatch.Draw(outroBack, window, Color.White);
+                    _spriteBatch.DrawString(outroFont, $"{Math.Round(posterTime, 0)}s", new Vector2(243, 372), Color.White);
                     break;
             }
 
@@ -869,6 +936,7 @@ namespace EscapeRoom
             {
                 if (backBtn.Contains(mouseState.Position))
                 {
+                    backBtnSound.Play();
                     puzzle = 0;
                     showBarcodeText = false;
                 }
@@ -880,14 +948,21 @@ namespace EscapeRoom
             if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
             {
                 if (backBtn.Contains(mouseState.Position))
+                {
+                    backBtnSound.Play();
                     puzzle = backPuzzle;
+                    showBarcodeText = false;
+                }
             }
         }
 
         public void ScannerItem()
         {
             if (keyboardState.IsKeyDown(Keys.B) && prevKeyboardState.IsKeyUp(Keys.B))
+            {
                 scannerEquipped = !scannerEquipped;
+                itemSwitch.Play();
+            }
             if (scannerEquipped)
             {
                 scannerRect.X = mouseState.X;
@@ -1043,6 +1118,7 @@ namespace EscapeRoom
                     if (specialBarcode.Contains(mouseState.Position))
                     {
                         showBarcodeText = true;
+                        barcodeScan.Play();
                         if ((barcodeTimer > barcodeStop) || !backToggle)
                         {
                             barcodeTimer = 0f;

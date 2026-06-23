@@ -27,6 +27,13 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/numFont.spritefont
 
+#begin Fonts/outroFont.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/outroFont.spritefont
+
 #begin Images/arrow.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -135,6 +142,18 @@
 /processorParam:TextureFormat=Color
 /build:Images/cursor.png
 
+#begin Images/escapeButton.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/escapeButton.png
+
 #begin Images/introscreen.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -206,6 +225,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Images/onbulb.png
+
+#begin Images/OutroScreen.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/OutroScreen.png
 
 #begin Images/playbutton.png
 /importer:TextureImporter
@@ -483,18 +514,6 @@
 /processorParam:TextureFormat=Color
 /build:Posters/GamenightBack.png
 
-#begin Posters/GamenightBack.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:Posters/GamenightBack.png
-
 #begin Posters/GamenightFront.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -674,4 +693,106 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:Posters/YesterdayFront.png
+
+#begin Songs/dayMusic.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Songs/dayMusic.mp3
+
+#begin Songs/introMusic.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Songs/introMusic.mp3
+
+#begin Songs/nightMusic.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Songs/nightMusic.mp3
+
+#begin Songs/outroMusic.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Songs/outroMusic.mp3
+
+#begin Songs/tutorialMusic.mp3
+/importer:Mp3Importer
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:Songs/tutorialMusic.mp3
+
+#begin Sounds/BackButton.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/BackButton.wav
+
+#begin Sounds/BarcodeScan.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/BarcodeScan.wav
+
+#begin Sounds/ButtonClick.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/ButtonClick.wav
+
+#begin Sounds/ChestError.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/ChestError.wav
+
+#begin Sounds/ChestOpen.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/ChestOpen.wav
+
+#begin Sounds/ClickLight.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/ClickLight.wav
+
+#begin Sounds/ClickPoster.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/ClickPoster.wav
+
+#begin Sounds/CompletedGame.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/CompletedGame.wav
+
+#begin Sounds/ItemSwitch.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/ItemSwitch.wav
+
+#begin Sounds/PosterTurn.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/PosterTurn.wav
+
+#begin Sounds/SpecialPoster.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/SpecialPoster.wav
+
+#begin Sounds/TardisWhooshy.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:Sounds/TardisWhooshy.wav
 
