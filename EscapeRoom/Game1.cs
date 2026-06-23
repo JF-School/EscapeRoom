@@ -43,10 +43,11 @@ namespace EscapeRoom
         // tutorial screen
         Texture2D gamePosterFront, gamePosterBack;
         Rectangle gameRect;
-        Texture2D leftClickTexture, solveTexture;
-        Rectangle leftClickRect, solveRect;
+        Texture2D leftClickTexture, solveTexture, continueTexture;
+        Rectangle leftClickRect, solveRect, continueBtn;
         bool backGame;
         bool gameSpecial; // just to fill the method LOL
+        bool visitedBack;
         SoundEffect tutorialMusic;
         SoundEffectInstance tutorialMusicInstance;
 
@@ -85,8 +86,10 @@ namespace EscapeRoom
         Rectangle scannerBtnSmall, cursorSmallRect, screwdriverRect, tardisRect;
         bool showScrewdriver, screwdriver;
         bool tardisActivated; // true = you can escape! false = you can't escape.
+        bool escaped; // for the sound effect
         int clicks;
         SoundEffect specialSound, tardisWhoosh, completeGame, chestError, chestOpen;
+        SoundEffectInstance completeGameInstance;
 
         // SCANNER
         bool scannerEquipped;
@@ -151,11 +154,12 @@ namespace EscapeRoom
             _graphics.ApplyChanges();
 
             // needed variables to stay at the top
-            screen = Screen.Outro;
+            screen = Screen.Intro;
             puzzle = 0; // zero puzzle = original window
             generator = new Random();
             lightsToggle = false;
             tardisActivated = false;
+            escaped = false;
 
             // intro screen
             playBtn = new Rectangle(152, 291, 138, 138);
@@ -168,8 +172,10 @@ namespace EscapeRoom
             gameRect = new Rectangle(447, 122, 190, 256);
             leftClickRect = new Rectangle(123, 140, 237, 220);
             solveRect = new Rectangle(-11, 140, 230, 220);
+            continueBtn = new Rectangle(690, 390, 75, 75);
             backGame = false;
             gameSpecial = false;
+            visitedBack = false;
 
             // LIGHTS OUT
             lightsBack = new Rectangle(225, 70, 300, 300);
@@ -252,7 +258,6 @@ namespace EscapeRoom
             // outro screen
             escapeBtn = new Rectangle(600, 405, 166, 59);
 
-
             // TODO: Add your initialization logic here
 
             base.Initialize();
@@ -310,6 +315,7 @@ namespace EscapeRoom
             gamePosterBack = Content.Load<Texture2D>("Posters/GamenightBack");
             leftClickTexture = Content.Load<Texture2D>("Images/leftclick");
             solveTexture = Content.Load<Texture2D>("Images/solvecaesar");
+            continueTexture = Content.Load<Texture2D>("Images/continue");
 
             // day posters
             sunPosterFront = Content.Load<Texture2D>("Posters/SunFront");
@@ -386,6 +392,7 @@ namespace EscapeRoom
             clickLight = Content.Load<SoundEffect>("Sounds/ClickLight");
             clickPoster = Content.Load<SoundEffect>("Sounds/ClickPoster");
             completeGame = Content.Load<SoundEffect>("Sounds/CompletedGame");
+            completeGameInstance = completeGame.CreateInstance();
             itemSwitch = Content.Load<SoundEffect>("Sounds/ItemSwitch");
             flipPoster = Content.Load<SoundEffect>("Sounds/PosterTurn");
             specialSound = Content.Load<SoundEffect>("Sounds/SpecialPoster");
@@ -418,23 +425,40 @@ namespace EscapeRoom
             switch (screen) 
             {
                 case Screen.Intro:
+                    this.Window.Title = "Good luck.";
+                    introMusicInstance.Play();
                     if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
                     {
                         if (backBtn.Contains(mouseState.Position))
+                        {
                             intro = 0;
+                            backBtnSound.Play();
+                        }
                         switch (intro)
                         {
                             case 0: // main screen
                                 if (playBtn.Contains(mouseState.Position))
+                                {
                                     intro = 1;
+                                    buttonClick.Play();
+                                }
                                 if (creditsBtn.Contains(mouseState.Position))
+                                {
                                     intro = 2;
+                                    buttonClick.Play();
+                                }
                                 break;
                             case 1: // tutorial?
                                 if (yesBtn.Contains(mouseState.Position))
+                                {
                                     screen = Screen.Tutorial;
+                                    buttonClick.Play();
+                                }
                                 if (noBtn.Contains(mouseState.Position))
+                                {
                                     screen = Screen.PosterRoom;
+                                    buttonClick.Play();
+                                }
                                 break;
                             case 2: // credits (no buttons)
                                 break;
@@ -442,6 +466,10 @@ namespace EscapeRoom
                     }
                     break;
                 case Screen.Tutorial:
+                    introMusicInstance.Pause();
+                    tutorialMusicInstance.Resume();
+                    tutorialMusicInstance.Volume = 0.5f;
+                    this.Window.Title = "Learn how to play!";
                     ScannerItem();
                     switch (puzzle)
                     {
@@ -449,29 +477,62 @@ namespace EscapeRoom
                             CursorChange(gameRect);
                             if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
                             {
-                                if (backBtn.Contains(mouseState.Position))
+                                if (backBtn.Contains(mouseState.Position) && !visitedBack)
                                 {
+                                    backBtnSound.Play();
                                     screen = Screen.Intro;
                                     intro = 0;
+                                    tutorialMusicInstance.Pause();
+                                    introMusicInstance.Resume();
                                 }
-                                if (gameRect.Contains(mouseState.Position))
-                                    puzzle = 1;
+                                if (continueBtn.Contains(mouseState.Position) && visitedBack)
+                                {
+                                    buttonClick.Play();
+                                    screen = Screen.PosterRoom;
+                                    puzzle = 0;
+                                }
+                                ClickPoster(gameRect, 1);
                             }
                             if (mouseState.RightButton == ButtonState.Pressed && prevMouseState.RightButton == ButtonState.Released)
                             {
                                 if (gameRect.Contains(mouseState.Position))
+                                {
                                     backGame = !backGame;
+                                    flipPoster.Play();
+                                    visitedBack = true;
+                                }
                             }
                             break;
                         case 1: // gamenight poster
                             ResetMouseCursor(gameRect);
                             BackButton();
                             backGame = BackToggle(maxPosterRect, backGame);
-                            BarcodeScanner(gameBarcode, backGame, gameSpecial);
+                            if (BackToggle(maxPosterRect, backGame) == true)
+                                visitedBack = true;
+                            BarcodeScanner(gameBarcode, backGame, !gameSpecial);
                             break;
                     }
                     break;
                 case Screen.PosterRoom:
+                    introMusicInstance.Pause();
+                    tutorialMusicInstance.Pause();
+                    if (lights)
+                    {
+                        if (!lightsToggle)
+                            this.Window.Title = "Welcome to the poster room.";
+                        else if (lightsToggle && puzzle != 1)
+                            this.Window.Title = "Where did all the dark go?";
+                        nightMusicInstance.Pause();
+                        dayMusicInstance.Play();
+                        dayMusicInstance.Volume = 0.5f;
+                    }
+                    else
+                    {
+                        this.Window.Title = "Where did all the light go?";
+                        dayMusicInstance.Pause();
+                        nightMusicInstance.Play();
+                        nightMusicInstance.Volume = 0.5f;
+                    }
                     posterTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
                     ScannerItem();
                     switch (puzzle)
@@ -483,29 +544,41 @@ namespace EscapeRoom
                                 if (bulbRect.Contains(mouseState.Position) && !lightsToggle && bulbAppear)
                                 {
                                     puzzle = 1;
+                                    clickLight.Play();
                                     Debug.WriteLine("Press ALT + L to instantly solve the puzzle.");
                                 }
                                 if (bulbRect.Contains(mouseState.Position) && lightsToggle)
+                                {
                                     lights = !lights;
-                                if (sunRect.Contains(mouseState.Position))
-                                    puzzle = 3;
-                                if (todayRect.Contains(mouseState.Position))
-                                    puzzle = 4;
-                                if (alertRect.Contains(mouseState.Position))
-                                    puzzle = 5;
-                                if (bdayRect.Contains(mouseState.Position))
-                                    puzzle = 6;
+                                    clickLight.Play();
+                                }
+                                ClickPoster(sunRect, 3);
+                                ClickPoster(todayRect, 4);
+                                ClickPoster(alertRect, 5);
+                                ClickPoster(bdayRect, 6);
                             }
                             if (mouseState.RightButton == ButtonState.Pressed && prevMouseState.RightButton == ButtonState.Released)
                             {
                                 if (sunRect.Contains(mouseState.Position))
+                                {
                                     backSun = !backSun;
+                                    flipPoster.Play();
+                                }
                                 if (todayRect.Contains(mouseState.Position))
+                                {
                                     backToday = !backToday;
+                                    flipPoster.Play();
+                                }
                                 if (alertRect.Contains(mouseState.Position))
+                                {
                                     backAlert = !backAlert;
+                                    flipPoster.Play();
+                                }
                                 if (bdayRect.Contains(mouseState.Position))
+                                {
                                     backBday = !backBday;
+                                    flipPoster.Play();
+                                }
 
                             }
                             break;
@@ -514,7 +587,10 @@ namespace EscapeRoom
                             {
                                 if (lightGrid.Update(mouseState, prevMouseState) 
                                     || (keyboardState.IsKeyDown(Keys.LeftAlt) && keyboardState.IsKeyDown(Keys.L) && prevKeyboardState.IsKeyUp(Keys.L)))
+                                {
                                     lightsToggle = true;
+                                    specialSound.Play();
+                                }
                             }
                             if (lightsToggle)
                                 BackButton();
@@ -527,8 +603,18 @@ namespace EscapeRoom
                             if (tardisActivated)
                             {
                                 if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                                {
                                     if (escapeBtn.Contains(mouseState.Position))
-                                        screen = Screen.Outro;
+                                    {
+                                        completeGameInstance.Play();
+                                        escaped = true;
+                                    }
+                                }
+                            }
+                            if (escaped)
+                            {
+                                if (completeGameInstance.State == SoundState.Stopped)
+                                    screen = Screen.Outro;
                             }
                             break;
                         case 3: // sun poster
@@ -551,7 +637,10 @@ namespace EscapeRoom
                                     && (keyboardState.IsKeyDown(Keys.S) && prevKeyboardState.IsKeyUp(Keys.S)))
                                 {
                                     if (chestToggleRect.Contains(mouseState.Position))
+                                    {
                                         sunDisappear = true;
+                                        specialSound.Play();
+                                    }
                                 }
                             }
                             if (sunDisappear && keyCollected && tomorrowToggle && !backSun && !screwdriver)
@@ -559,14 +648,22 @@ namespace EscapeRoom
                                 if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
                                 {
                                     if (chestBtn.Contains(mouseState.Position))
+                                    {
                                         showScrewdriver = true;
+                                        chestOpen.Play();
+                                    }
                                     if (screwdriverRect.Contains(mouseState.Position) && showScrewdriver)
                                     {
                                         showScrewdriver = false;
                                         screwdriver = true;
+                                        specialSound.Play();
                                     }
                                 }
                             }
+                            if (sunDisappear && !keyCollected || !tomorrowToggle && !backSun && !screwdriver)
+                                if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                                    if (chestBtn.Contains(mouseState.Position))
+                                        chestError.Play();
                             break;
                         case 4: // today poster
                             Mouse.SetCursor(MouseCursor.Arrow);
@@ -584,6 +681,7 @@ namespace EscapeRoom
                                 if (keyboardState.IsKeyDown(Keys.LeftControl) && (keyboardState.IsKeyDown(Keys.K) && prevKeyboardState.IsKeyUp(Keys.K)))
                                 {
                                     tomorrowToggle = true;
+                                    specialSound.Play();
                                 }
                             }
                             if (tomorrowToggle && screwdriver)
@@ -593,6 +691,7 @@ namespace EscapeRoom
                                     if (tardisRect.Contains(mouseState.Position))
                                     {
                                         puzzle = 2;
+                                        tardisWhoosh.Play();
                                         Debug.WriteLine("Press ALT + N to instantly complete the puzzle.");
                                     }
                                 }
@@ -602,6 +701,11 @@ namespace EscapeRoom
                             Mouse.SetCursor(MouseCursor.Arrow);
                             BackButton();
                             backAlert = BackToggle(maxPosterRect, backAlert);
+                            if (mouseState.RightButton == ButtonState.Pressed && prevMouseState.RightButton == ButtonState.Released)
+                            {
+                                showBarcodeText = false;
+                                barcodeTimer = 0f;
+                            }
                             if (lights)
                                 BarcodeScanner(alertBarcode, backAlert, !warningClick);
                             else
@@ -618,7 +722,10 @@ namespace EscapeRoom
                                     {
                                         clicks++;
                                         if (clicks == 5)
+                                        {
                                             warningClick = true;
+                                            specialSound.Play();
+                                        }
                                     }
                                     else if (!warningSignRect.Contains(mouseState.Position))
                                         clicks = 0;
@@ -632,6 +739,7 @@ namespace EscapeRoom
                                     {
                                         buttonClicked = true;
                                         lockPoster = true;
+                                        specialSound.Play();
                                     }
                                 }
                             }
@@ -651,9 +759,16 @@ namespace EscapeRoom
                                 if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
                                 {
                                     if (lockBtn.Contains(mouseState.Position))
+                                    {
+                                        buttonClick.Play();
                                         puzzle = 7;
+                                    }
                                 }
                             }
+                            if (buttonClicked && !sunDisappear && !backBday && lights)
+                                if (mouseState.LeftButton == ButtonState.Pressed && prevMouseState.LeftButton == ButtonState.Released)
+                                    if (lockBtn.Contains(mouseState.Position))
+                                        chestError.Play();
                             break;
                         case 7: // lock
                             Mouse.SetCursor(MouseCursor.Arrow);
@@ -678,6 +793,7 @@ namespace EscapeRoom
                                     {
                                         keyCollected = true;
                                         lockPoster = false;
+                                        specialSound.Play();
                                     }
                                 }
                             }
@@ -685,6 +801,11 @@ namespace EscapeRoom
                     }
                     break;
                 case Screen.Outro:
+                    this.Window.Title = "The future where you escaped!";
+                    dayMusicInstance.Pause();
+                    nightMusicInstance.Pause();
+                    outroMusicInstance.Play();
+                    outroMusicInstance.Volume = 0.3f;
                     break;
             }
 
@@ -729,7 +850,10 @@ namespace EscapeRoom
                             _spriteBatch.Draw(rectTexture, window, Color.LightSkyBlue);
                             _spriteBatch.Draw(leftClickTexture, leftClickRect, Color.White);
                             DrawPoster(backGame, gamePosterFront, gamePosterBack, gameRect);
-                            _spriteBatch.Draw(backTexture, backBtn, Color.White);
+                            if (!visitedBack)
+                                _spriteBatch.Draw(backTexture, backBtn, Color.White);
+                            else
+                                _spriteBatch.Draw(continueTexture, continueBtn, Color.White);
                             break;
                         case 1: // gamenight poster
                             _spriteBatch.Draw(rectTexture, window, Color.LightSkyBlue);
@@ -939,6 +1063,7 @@ namespace EscapeRoom
                     backBtnSound.Play();
                     puzzle = 0;
                     showBarcodeText = false;
+                    barcodeTimer = 0f;
                 }
             }
         }
@@ -952,8 +1077,18 @@ namespace EscapeRoom
                     backBtnSound.Play();
                     puzzle = backPuzzle;
                     showBarcodeText = false;
+                    barcodeTimer = 0f;
                 }
             }
+        }
+
+        public void ClickPoster(Rectangle poster, int backPuzzle)
+        {
+            if (poster.Contains(mouseState.Position))
+            {
+                puzzle = backPuzzle;
+                clickPoster.Play();
+            }    
         }
 
         public void ScannerItem()
@@ -1098,7 +1233,10 @@ namespace EscapeRoom
             if (mouseState.RightButton == ButtonState.Pressed && prevMouseState.RightButton == ButtonState.Released)
             {
                 if (poster.Contains(mouseState.Position))
+                {
                     toggle = !toggle;
+                    flipPoster.Play();
+                }
             }
             return toggle;
         }

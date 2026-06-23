@@ -106,6 +106,18 @@
 /processorParam:TextureFormat=Color
 /build:Images/button.png
 
+#begin Images/continue.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:Images/continue.png
+
 #begin Images/credits.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -696,31 +708,31 @@
 
 #begin Songs/dayMusic.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Songs/dayMusic.mp3
 
 #begin Songs/introMusic.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Songs/introMusic.mp3
 
 #begin Songs/nightMusic.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Songs/nightMusic.mp3
 
 #begin Songs/outroMusic.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Songs/outroMusic.mp3
 
 #begin Songs/tutorialMusic.mp3
 /importer:Mp3Importer
-/processor:SongProcessor
+/processor:SoundEffectProcessor
 /processorParam:Quality=Best
 /build:Songs/tutorialMusic.mp3
 
